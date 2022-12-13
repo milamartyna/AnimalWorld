@@ -1,10 +1,6 @@
 plugins {
-    id 'appplication'
     id 'java'
-}
-
-application {
-    mainClassName = 'agh.ics.oop.World'
+    id 'application'
 }
 
 group 'org.example'
@@ -19,12 +15,13 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
 }
 
-test {
-    useJUnitPlatform()
+application{
+    mainClassName = 'agh.ics.oop.World'
 }
 
 java{
-    toolchain{
+    toolchain {
         languageVersion.set(JavaLanguageVersion.of(18))
     }
+
 }
