@@ -1,5 +1,7 @@
 package agh.ics.oop;
 
+import java.util.Random;
+
 public enum GeneDirection {
 
     ZERO,
@@ -10,6 +12,13 @@ public enum GeneDirection {
     FIVE,
     SIX,
     SEVEN;
+
+    private static final Random random = new Random();
+
+    public static GeneDirection generateGeneDirection()  {
+        GeneDirection[] directions = values();
+        return directions[random.nextInt(directions.length)];
+    }
 
     public String toString() {
         return switch (this) {
@@ -37,7 +46,7 @@ public enum GeneDirection {
         };
     }
 
-    private GeneDirection fromNumber(int num) {
+    public GeneDirection fromNumber(int num) {
         return switch (num) {
             case 0 -> ZERO;
             case 1 -> ONE;
@@ -95,4 +104,5 @@ public enum GeneDirection {
         }
         return fromNumber(gene.toNumber() + this.toNumber());
     }
+
 }
