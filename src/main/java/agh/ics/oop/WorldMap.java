@@ -1,10 +1,8 @@
 package agh.ics.oop;
 
-import java.util.HashMap;
 import java.util.Random;
-import java.util.Vector;
 
-abstract class AbstractWorldMap {
+abstract class WorldMap {
 
     protected Vector2d startMap;
     protected Vector2d endMap;

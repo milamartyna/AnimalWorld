@@ -1,19 +1,17 @@
 package agh.ics.oop;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
-import java.util.Vector;
 
 public class Animal {
 
     // don't know where but maybe not here
-    private final static int startEnergyForAll = 9;
+    public final static int startEnergyForAll = 9;
     private final static int dnaLength = 9;
     private final static int energyLossForChild = 5;
     //
 
-    private AbstractWorldMap map;
+    private WorldMap map;
     private int energy;
     public GeneDirection[] dna;
     private Vector2d position;
@@ -103,4 +101,11 @@ public class Animal {
         this.energy = this.energy - loss;
     }
 
+    public int getEnergy(){
+        return energy;
+    }
+
+    public void setEnergy(int newEnergy){
+        this.energy = newEnergy;
+    }
 }

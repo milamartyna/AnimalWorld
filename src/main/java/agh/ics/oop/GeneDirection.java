@@ -98,6 +98,19 @@ public enum GeneDirection {
         };
     }
 
+    public GeneDirection opposite(){
+        return switch(this){
+            case ZERO -> FOUR;
+            case ONE -> FIVE;
+            case TWO -> SIX;
+            case THREE -> SEVEN;
+            case FOUR -> ZERO;
+            case FIVE -> ONE;
+            case SIX -> TWO;
+            case SEVEN -> THREE;
+        };
+    }
+
     public GeneDirection turn(GeneDirection gene){
         if (gene.toNumber() + this.toNumber() > 7) {
             return fromNumber(gene.toNumber() + this.toNumber() - 8);
