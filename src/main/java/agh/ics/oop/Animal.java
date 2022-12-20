@@ -1,9 +1,7 @@
 package agh.ics.oop;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
-import java.util.Vector;
 
 public class Animal {
 
@@ -13,7 +11,7 @@ public class Animal {
     private final static int energyLossForChild = 5;
     //
 
-    private AbstractWorldMap map;
+    private WorldMap map;
     private int energy;
     public GeneDirection[] dna;
     private Vector2d position;
@@ -36,7 +34,7 @@ public class Animal {
 //        this.map = map;
         this.energy = startEnergyForAll; // coś nie halo
         this.dna = generateDna();
-        this.position = new Vector2d(0, 0);
+        this.position = new Vector2d(0, 0); // need to fix
         this.activeGene = 0; // chyba tak, trza dopytać
         this.direction = GeneDirection.generateGeneDirection();
     }
@@ -101,6 +99,26 @@ public class Animal {
 
     public void updateEnergy(int loss){
         this.energy = this.energy - loss;
+    }
+
+    public boolean isDead(){
+        return this.energy == 0;
+    }
+
+    public Vector2d getPosition() {
+        return position;
+    }
+
+    public void setPosition(Vector2d position) {
+        this.position = position;
+    }
+
+    public void setDirection(GeneDirection geneDirection){
+        this.direction = geneDirection;
+    }
+
+    public GeneDirection getGeneDirection(){
+        return direction;
     }
 
 }
