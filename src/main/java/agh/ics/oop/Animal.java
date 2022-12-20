@@ -6,7 +6,7 @@ import java.util.Random;
 public class Animal {
 
     // don't know where but maybe not here
-    private final static int startEnergyForAll = 9;
+    public final static int startEnergyForAll = 9;
     private final static int dnaLength = 9;
     private final static int energyLossForChild = 5;
     //
@@ -99,6 +99,14 @@ public class Animal {
 
     public void updateEnergy(int loss){
         this.energy = this.energy - loss;
+    }
+
+    public int getEnergy(){
+        return energy;
+    }
+
+    public void setEnergy(int newEnergy){
+        this.energy = newEnergy;
     }
 
     public boolean isDead(){
