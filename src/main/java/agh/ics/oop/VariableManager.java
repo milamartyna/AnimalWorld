@@ -4,6 +4,7 @@ public class VariableManager {
 
     private static IMapType mapType;
     private static IMutationType mutationType;
+    private static IGardenType gardenType;
 
     public void setMapType(boolean flag){
         if(flag){
@@ -14,6 +15,12 @@ public class VariableManager {
         }
     }
 
-
-
+    public void setGardenType(boolean flag){
+        if(flag){
+            gardenType = new GreenEquator();
+        }
+        else{
+            gardenType =  new ToxicFields();
+        }
+    }
 }

@@ -1,15 +1,9 @@
 package agh.ics.oop;
 
-<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.Random;
 
 class WorldMap {
-=======
-import java.util.Random;
-
-abstract class WorldMap {
->>>>>>> 2badf843a0359ed406b59650a7d03718115b596f
 
     protected Vector2d startMap;
     protected Vector2d endMap;

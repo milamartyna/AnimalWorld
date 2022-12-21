@@ -101,14 +101,6 @@ public class Animal {
         this.energy = this.energy - loss;
     }
 
-    public int getEnergy(){
-        return energy;
-    }
-
-    public void setEnergy(int newEnergy){
-        this.energy = newEnergy;
-    }
-
     public boolean isDead(){
         return this.energy == 0;
     }
