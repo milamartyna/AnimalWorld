@@ -3,7 +3,10 @@ package agh.ics.oop;
 public class VariableManager {
 
     private static IMapType mapType;
-    private static IMutationType mutationType;
+
+    public VariableManager(){
+        setMapType(true);
+    }
 
     public void setMapType(boolean flag){
         if(flag){

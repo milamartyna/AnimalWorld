@@ -20,8 +20,8 @@ public class Animal {
     private static final Random random = new Random();
 
     // constructor for newborn Animals
-    public Animal(GeneDirection[] dna, Vector2d position){
-//        this.map = map;
+    public Animal(GeneDirection[] dna, Vector2d position, WorldMap map){
+        this.map = map;
         this.energy = energyLossForChild; // there is some loss of energy in the child making process
         this.dna = dna;
         this.position = position;
@@ -30,8 +30,8 @@ public class Animal {
     }
 
     // constructor for factory made animals
-    public Animal(){
-//        this.map = map;
+    public Animal(WorldMap map){
+        this.map = map;
         this.energy = startEnergyForAll; // coś nie halo
         this.dna = generateDna();
         this.position = new Vector2d(0, 0); // need to fix
@@ -94,19 +94,12 @@ public class Animal {
         this.updateEnergy(energyLossForChild);
         father.updateEnergy(energyLossForChild);
         GeneDirection[] childDna = this.crossDna(father);
-        new Animal(childDna, this.position); // here should also be a map so the animal is placed
+        // here we should mutate the dna of the child using the map field
+        new Animal(childDna, this.position, this.map); // here should also be a map so the animal is placed
     }
 
     public void updateEnergy(int loss){
         this.energy = this.energy - loss;
-    }
-
-    public int getEnergy(){
-        return energy;
-    }
-
-    public void setEnergy(int newEnergy){
-        this.energy = newEnergy;
     }
 
     public boolean isDead(){
