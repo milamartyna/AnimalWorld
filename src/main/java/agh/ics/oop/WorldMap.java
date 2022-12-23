@@ -20,7 +20,7 @@ class WorldMap {
         this.startMap = new Vector2d(0, 0);
         this.endMap = new Vector2d(manager.getWidth(), manager.getHeight());
         this.manager = manager;
-        manager.getGardenType().seedPlants(this, 10);
+        manager.getGardenType().seedPlants(this, 20);
     }
 
     public Vector2d generateMapPosition(){
@@ -63,6 +63,7 @@ class WorldMap {
         return this.objectAt(position) != null;
     }
 
+    @Override
     public String toString(){
         return mapVisualiser.draw(startMap, endMap);
     }

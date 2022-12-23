@@ -7,9 +7,9 @@ public class VariableManager {
     private int width = 10;
     private int height = 10;
 
-    private static IMapType mapType;
-    private static IMutationType mutationType;
-    private static IGardenType gardenType;
+    private IMapType mapType;
+    private IMutationType mutationType;
+    private IGardenType gardenType;
 
     // here I think there should be a passed an array of length 4 of bool values which corresponds
     // to which variable should be chosen
@@ -29,15 +29,15 @@ public class VariableManager {
 
     public void setGardenType(boolean flag){
         if(flag){
-            gardenType = new GreenEquator(width, height);
+            this.gardenType = new GreenEquator(width, height);
         }
         else{
-            gardenType =  new ToxicFields();
+            this.gardenType =  new ToxicFields();
         }
     }
 
-    public static IGardenType getGardenType() {
-        return gardenType;
+    public IGardenType getGardenType() {
+        return this.gardenType;
     }
 
     public int getWidth() {

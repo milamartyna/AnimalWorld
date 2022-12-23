@@ -78,9 +78,9 @@ public class GreenEquator implements IGardenType {
     }
 
     private void setSpotsLists(){
-        for(int i = 0; i < this.mapHeight; i++){
-            for(int j = 0; j < this.mapWidth; j++){
-                if(isRowPreferred(i)){
+        for(int i = 0; i < this.mapWidth; i++){
+            for(int j = 0; j < this.mapHeight; j++){
+                if(isRowPreferred(j)){
                     preferredSpots.add(new Vector2d(i, j));
                 }else{
                     nonPreferredSpots.add(new Vector2d(i, j));
