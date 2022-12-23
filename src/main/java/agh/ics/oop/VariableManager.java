@@ -6,6 +6,9 @@ public class VariableManager {
     // what are the constants like width and height of the map
     private int width = 10;
     private int height = 10;
+    public final int startEnergyForAll = 9;
+    public final int dnaLength = 9;
+    public final int energyLossForChild = 5;
 
     private IMapType mapType;
     private IMutationType mutationType;
@@ -16,28 +19,40 @@ public class VariableManager {
     public VariableManager(){
         setMapType(true);
         setGardenType(true);
+        setMutationType(true);
     }
 
-    public void setMapType(boolean flag){
-        if(flag){
+    private void setMapType(boolean flag){
+        if(flag) {
             mapType = new Globe();
-        }
-        else {
+        }else {
             mapType = new HellGate();
         }
     }
 
-    public void setGardenType(boolean flag){
-        if(flag){
+    private void setGardenType(boolean flag){
+        if(flag) {
             this.gardenType = new GreenEquator(width, height);
-        }
-        else{
+        }else {
             this.gardenType =  new ToxicFields();
         }
     }
 
+    private void setMutationType(boolean flag){
+        if(flag){
+            this.mutationType = new TotalRandomness(dnaLength);
+        }else {
+            this. mutationType = new SlightCorrection(dnaLength);
+        }
+
+    }
+
     public IGardenType getGardenType() {
         return this.gardenType;
+    }
+
+    public IMutationType getMutationType(){
+        return this.mutationType;
     }
 
     public int getWidth() {

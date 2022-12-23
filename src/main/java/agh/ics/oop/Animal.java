@@ -5,12 +5,6 @@ import java.util.Random;
 
 public class Animal {
 
-    // don't know where but maybe not here
-    public final static int startEnergyForAll = 9;
-    private final static int dnaLength = 9;
-    private final static int energyLossForChild = 5;
-    //
-
     private WorldMap map;
     private int energy;
     public GeneDirection[] dna;
@@ -22,26 +16,28 @@ public class Animal {
     // constructor for newborn Animals
     public Animal(GeneDirection[] dna, Vector2d position, WorldMap map){
         this.map = map;
-        this.energy = energyLossForChild; // there is some loss of energy in the child making process
+        this.energy = map.manager.energyLossForChild; // there is some loss of energy in the child making process
         this.dna = dna;
         this.position = position;
-        this.activeGene = random.nextInt(dnaLength);
+        this.activeGene = random.nextInt(map.manager.dnaLength);
         this.direction = GeneDirection.generateGeneDirection();
+        this.map.placeAnimal(this);
     }
 
     // constructor for factory made animals
     public Animal(WorldMap map){
         this.map = map;
-        this.energy = startEnergyForAll; // coś nie halo
+        this.energy = map.manager.startEnergyForAll; // coś nie halo
         this.dna = generateDna();
-        this.position = new Vector2d(0, 0); // need to fix
-        this.activeGene = 0; // chyba tak, trza dopytać
+        this.position = this.map.generateMapPosition(); // don't know if that's correct
+        this.activeGene = 0; // not sure
         this.direction = GeneDirection.generateGeneDirection();
+        this.map.placeAnimal(this); // important to place the animal after setting all the parameters
     }
 
     private GeneDirection[] generateDna(){
-        GeneDirection[] geneDirection = new GeneDirection[dnaLength];
-        for(int i = 0; i < dnaLength; i++){
+        GeneDirection[] geneDirection = new GeneDirection[map.manager.dnaLength];
+        for(int i = 0; i < map.manager.dnaLength; i++){
             geneDirection[i] = GeneDirection.generateGeneDirection();
         }
         return geneDirection;
@@ -54,7 +50,7 @@ public class Animal {
     }
 
     private GeneDirection[] crossDna(Animal father){
-        GeneDirection[] childDna = new GeneDirection[dnaLength];
+        GeneDirection[] childDna = new GeneDirection[map.manager.dnaLength];
         GeneDirection[] leftArr;
         GeneDirection[] rightArr;
 
@@ -70,16 +66,16 @@ public class Animal {
             weaker = this;
         }
 
-        int strongerGene = (int) Math.ceil(stronger.energy / totalEnergy * dnaLength);
-        int weakerGene = (int) Math.floor(weaker.energy / totalEnergy * dnaLength);
+        int strongerGene = (int) Math.ceil(stronger.energy / totalEnergy * map.manager.dnaLength);
+        int weakerGene = (int) Math.floor(weaker.energy / totalEnergy * map.manager.dnaLength);
 
         int side = random.nextInt(2);
 
         if(side == 0){
             leftArr = Arrays.copyOfRange(stronger.dna, 0, strongerGene);
-            rightArr = Arrays.copyOfRange(weaker.dna ,strongerGene, dnaLength);
+            rightArr = Arrays.copyOfRange(weaker.dna ,strongerGene, map.manager.dnaLength);
         }else {
-            rightArr = Arrays.copyOfRange(stronger.dna, weakerGene, dnaLength);
+            rightArr = Arrays.copyOfRange(stronger.dna, weakerGene, map.manager.dnaLength);
             leftArr = Arrays.copyOfRange(weaker.dna ,0, weakerGene);
         }
 
@@ -90,12 +86,12 @@ public class Animal {
     }
 
     // this method should not be called unless animals are on the same position
-    public void makeChild(Animal father){
-        this.updateEnergy(energyLossForChild);
-        father.updateEnergy(energyLossForChild);
+    public Animal makeChild(Animal father){
+        this.updateEnergy(map.manager.energyLossForChild);
+        father.updateEnergy(map.manager.energyLossForChild);
         GeneDirection[] childDna = this.crossDna(father);
-        // here we should mutate the dna of the child using the map field
-        new Animal(childDna, this.position, this.map); // here should also be a map so the animal is placed
+        this.map.manager.getMutationType().mutation(childDna);
+        return new Animal(childDna, this.position, this.map);
     }
 
     public void updateEnergy(int loss){
@@ -122,4 +118,15 @@ public class Animal {
         return direction;
     }
 
+    public WorldMap getMap() {
+        return map;
+    }
+
+    public GeneDirection[] getDna(){
+        return this.dna;
+    }
+    @Override
+    public String toString(){
+        return "A";
+    }
 }
