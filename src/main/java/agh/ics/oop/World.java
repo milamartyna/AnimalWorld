@@ -21,13 +21,10 @@ public class World {
         System.out.println(animal2.getPosition());
 
         Animal childAnimal = animal1.makeChild(animal2);
-        for(GeneDirection geneDirection : childAnimal.getDna()){
-            System.out.println(geneDirection);
-        }
+        System.out.println(Arrays.toString(childAnimal.dna));
 
         animal1.move();
         System.out.println(animal1.getPosition());
-
 
         System.out.println(map);
 

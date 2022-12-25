@@ -13,13 +13,15 @@ public class VariableManager {
     private IMapType mapType;
     private IMutationType mutationType;
     private IGardenType gardenType;
+    private IBehaviorType behaviorType;
 
     // here I think there should be a passed an array of length 4 of bool values which corresponds
     // to which variable should be chosen
     public VariableManager(){
         setMapType(true);
         setGardenType(true);
-        setMutationType(true);
+        setMutationType(false);
+        setBehaviorType(true);
     }
 
     private void setMapType(boolean flag){
@@ -42,9 +44,16 @@ public class VariableManager {
         if(flag){
             this.mutationType = new TotalRandomness(dnaLength);
         }else {
-            this. mutationType = new SlightCorrection(dnaLength);
+            this.mutationType = new SlightCorrection(dnaLength);
         }
+    }
 
+    private void setBehaviorType(boolean flag){
+        if(flag){
+            this.behaviorType = new CompletePredestination(dnaLength);
+        }else {
+            this.behaviorType = new Craziness(dnaLength);
+        }
     }
 
     public IGardenType getGardenType() {
@@ -53,6 +62,10 @@ public class VariableManager {
 
     public IMutationType getMutationType(){
         return this.mutationType;
+    }
+
+    public IBehaviorType getBehaviorType() {
+        return behaviorType;
     }
 
     public int getWidth() {

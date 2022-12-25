@@ -45,7 +45,8 @@ public class Animal {
 
     public void move(){
         this.direction = this.direction.turn(this.dna[this.activeGene]);
-        // here the active gene change should occur
+        // the change of the active gene
+        this.activeGene = this.map.manager.getBehaviorType().geneActivation(this.activeGene);
         this.position = this.position.add(this.direction.toUnitVector());
     }
 

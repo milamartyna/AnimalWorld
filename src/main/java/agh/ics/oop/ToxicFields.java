@@ -11,4 +11,5 @@ public class ToxicFields implements IGardenType{
     public void plantIsEaten(WorldMap map, Vector2d position) {
 
     }
+
 }

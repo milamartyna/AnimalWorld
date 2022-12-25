@@ -15,12 +15,12 @@ public class TotalRandomness implements IMutationType {
     // everytime mutation happens, the number and which genes will change, will be different
     @Override
     public void mutation(GeneDirection[] dna) {
-        int mutationGeneCount = random.nextInt(this.dnaLength + 1);
+        int mutationGeneCount = random.nextInt(this.dnaLength);
         Integer[] mutationGeneIndexes = new Integer[mutationGeneCount];
         for (int i = 0; i < mutationGeneCount; i++) {
-            int index = random.nextInt(this.dnaLength + 1);
-            while (Arrays.asList(mutationGeneCount).contains(index)) {
-                index = random.nextInt(this.dnaLength + 1);
+            int index = random.nextInt(this.dnaLength);
+            while (Arrays.asList(mutationGeneIndexes).contains(index)) {
+                index = random.nextInt(this.dnaLength);
             }
             mutationGeneIndexes[i] = index;
         }
