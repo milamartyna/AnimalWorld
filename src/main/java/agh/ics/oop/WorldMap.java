@@ -6,7 +6,7 @@ import java.util.Random;
 
 class WorldMap {
 
-    private final VariableManager manager;
+    public final VariableManager manager;
     public Vector2d startMap;
     public Vector2d endMap;
     public HashMap<Vector2d, Integer> placesOfDeath = new HashMap<>();
@@ -21,7 +21,11 @@ class WorldMap {
         this.startMap = new Vector2d(0, 0);
         this.endMap = new Vector2d(manager.getWidth(), manager.getHeight());
         this.manager = manager;
-        manager.getGardenType().seedPlants(this, 10);
+        manager.getGardenType().seedPlants(this, 20);
+    }
+
+    public void placeAnimal(Animal animal){
+        this.animals.add(animal);
     }
 
     public Vector2d generateMapPosition(){
@@ -53,13 +57,13 @@ class WorldMap {
     }
 
     public Object objectAt(Vector2d position) {
-        if(plants.containsKey(position)){
-            return this.plants.get(position);
-        }
         for(Animal animal : animals){
-            if(animal.getPosition() == position){
+            if(animal.getPosition().equals(position)){
                 return animal;
             }
+        }
+        if(plants.containsKey(position)){
+            return this.plants.get(position);
         }
         return null;
     }
@@ -68,6 +72,7 @@ class WorldMap {
         return this.objectAt(position) != null;
     }
 
+    @Override
     public String toString(){
         return mapVisualiser.draw(startMap, endMap);
     }
