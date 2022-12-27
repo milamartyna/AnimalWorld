@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.Random;
 
 public class GreenEquator implements IGardenType {
-
     private int lastPreferredRow;
     private int firstPreferredRow;
 
@@ -18,7 +17,6 @@ public class GreenEquator implements IGardenType {
     public GreenEquator(int width, int height){
         this.mapWidth = width;
         this.mapHeight = height;
-
         this.setPreferredRowsIndexes();
         this.setSpotsLists();
     }
@@ -30,7 +28,6 @@ public class GreenEquator implements IGardenType {
     public void seedPlants(WorldMap map, int seedCount) {
         Collections.shuffle(this.preferredSpots);
         Collections.shuffle(this.nonPreferredSpots);
-
         while (seedCount > 0){
             boolean plantInJungle = this.isJungle();
             if(plantInJungle && this.preferredSpots.size() > 0){
@@ -78,8 +75,8 @@ public class GreenEquator implements IGardenType {
     }
 
     private void setSpotsLists(){
-        for(int i = 0; i < this.mapWidth; i++){
-            for(int j = 0; j < this.mapHeight; j++){
+        for(int i = 0; i < this.mapHeight; i++){
+            for(int j = 0; j < this.mapWidth; j++){
                 if(isRowPreferred(j)){
                     preferredSpots.add(new Vector2d(i, j));
                 }else{
@@ -92,5 +89,4 @@ public class GreenEquator implements IGardenType {
     private boolean isRowPreferred(int x){
         return x >= this.firstPreferredRow && x <= this.lastPreferredRow;
     }
-
 }

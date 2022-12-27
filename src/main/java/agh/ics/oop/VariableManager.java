@@ -36,7 +36,7 @@ public class VariableManager {
         if(flag) {
             this.gardenType = new GreenEquator(width, height);
         }else {
-            this.gardenType =  new ToxicFields();
+            this.gardenType =  new ToxicFields(width, height);
         }
     }
 

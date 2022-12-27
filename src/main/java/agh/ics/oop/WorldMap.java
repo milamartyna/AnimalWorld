@@ -9,6 +9,7 @@ class WorldMap {
     public final VariableManager manager;
     public Vector2d startMap;
     public Vector2d endMap;
+    public HashMap<Vector2d, Integer> placesOfDeath = new HashMap<>();
     private static final Random random = new Random();
     private final ArrayList<Animal> animals = new ArrayList<>();
     private final HashMap<Vector2d, Plant> plants = new HashMap<>();
@@ -47,6 +48,10 @@ class WorldMap {
     private void gravedigger(){
         for(Animal animal : animals){
             if(animal.isDead()){
+                Vector2d position = animal.getPosition();
+                int value = placesOfDeath.get(position);
+                placesOfDeath.remove(position);
+                placesOfDeath.put(position, value + 1);
                 animals.remove(animal);
             }
         }
