@@ -9,6 +9,11 @@ public class Plant {
     }
 
     public Vector2d getPosition(){
-        return this.position;
+        return position;
         }
+
+    @Override
+    public String toString(){
+        return "*";
+    }
 }
