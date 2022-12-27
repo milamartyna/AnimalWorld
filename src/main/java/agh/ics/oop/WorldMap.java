@@ -10,10 +10,10 @@ class WorldMap {
     public Vector2d startMap;
     public Vector2d endMap;
     private static final Random random = new Random();
-    private ArrayList<Animal> animals = new ArrayList<>();
-    private HashMap<Vector2d, Plant> plants = new HashMap<>();
+    private final ArrayList<Animal> animals = new ArrayList<>();
+    private final HashMap<Vector2d, Plant> plants = new HashMap<>();
 
-    private MapVisualiser mapVisualiser;
+    private final MapVisualiser mapVisualiser;
 
     public WorldMap(VariableManager manager){
         this.mapVisualiser = new MapVisualiser(this);
@@ -27,13 +27,24 @@ class WorldMap {
         this.animals.add(animal);
     }
 
+    private void animalsMove(){
+        for (Animal animal : animals){
+            animal.move();
+            this.manager.getMapType().walksOutOfBounds(animal, this);
+        }
+    }
+
+    private void animalsEat(){
+
+    }
+
     public Vector2d generateMapPosition(){
         int x = random.nextInt(endMap.x() - startMap.x() + 1) + startMap.x();
         int y = random.nextInt(endMap.y() - startMap.y() + 1) + startMap.y();
         return new Vector2d(x, y);
     }
 
-    public void gravedigger(){
+    private void gravedigger(){
         for(Animal animal : animals){
             if(animal.isDead()){
                 animals.remove(animal);

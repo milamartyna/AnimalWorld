@@ -56,6 +56,10 @@ public class VariableManager {
         }
     }
 
+    public IMapType getMapType() {
+        return mapType;
+    }
+
     public IGardenType getGardenType() {
         return this.gardenType;
     }

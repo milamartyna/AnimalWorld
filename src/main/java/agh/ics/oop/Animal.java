@@ -16,7 +16,8 @@ public class Animal {
     // constructor for newborn Animals
     public Animal(GeneDirection[] dna, Vector2d position, WorldMap map){
         this.map = map;
-        this.energy = map.manager.energyLossForChild; // there is some loss of energy in the child making process
+        // because after procreation the map animal energy sum should remain the same
+        this.energy = map.manager.energyLossForChild * 2;
         this.dna = dna;
         this.position = position;
         this.activeGene = random.nextInt(map.manager.dnaLength);
