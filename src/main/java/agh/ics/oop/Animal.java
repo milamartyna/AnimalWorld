@@ -5,6 +5,8 @@ import java.util.Random;
 
 public class Animal {
 
+    private int age;
+    private int kidsCounter;
     private WorldMap map;
     private int energy;
     public GeneDirection[] dna;
@@ -22,6 +24,8 @@ public class Animal {
         this.activeGene = random.nextInt(map.manager.dnaLength);
         this.direction = GeneDirection.generateGeneDirection();
         this.map.placeAnimal(this);
+        this.age = 0;
+        this.kidsCounter = 0;
     }
 
     // constructor for factory made animals
@@ -33,6 +37,8 @@ public class Animal {
         this.activeGene = 0; // not sure
         this.direction = GeneDirection.generateGeneDirection();
         this.map.placeAnimal(this); // important to place the animal after setting all the parameters
+        this.age = 0;  // age define how many days does animal live
+        this.kidsCounter = 0;  // how many kids does animal have
     }
 
     private GeneDirection[] generateDna(){
@@ -89,7 +95,9 @@ public class Animal {
     // this method should not be called unless animals are on the same position
     public Animal makeChild(Animal father){
         this.updateEnergy(map.manager.energyLossForChild);
+        this.kidsCounter += 1;
         father.updateEnergy(map.manager.energyLossForChild);
+        father.kidsCounter += 1;
         GeneDirection[] childDna = this.crossDna(father);
         this.map.manager.getMutationType().mutation(childDna);
         return new Animal(childDna, this.position, this.map);
@@ -126,6 +134,12 @@ public class Animal {
     public GeneDirection[] getDna(){
         return this.dna;
     }
+
+    public int getEnergy(){ return this.energy; }
+
+    public int getAge(){ return this.age; }
+
+    public int getKidsCounter(){ return this.kidsCounter; }
     @Override
     public String toString(){
         return "A";

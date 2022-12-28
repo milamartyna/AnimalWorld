@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+import static java.lang.Math.max;
+
 class WorldMap {
 
     public final VariableManager manager;
@@ -13,6 +15,9 @@ class WorldMap {
     private static final Random random = new Random();
     private ArrayList<Animal> animals = new ArrayList<>();
     private HashMap<Vector2d, Plant> plants = new HashMap<>();
+    private ArrayList<Animal> animalsAtTheSameSpot;
+    private ArrayList<Animal> animalsWithTheSameEnergy;
+
 
     private MapVisualiser mapVisualiser;
 
@@ -70,6 +75,108 @@ class WorldMap {
 
     public boolean isOccupied(Vector2d position) {
         return this.objectAt(position) != null;
+    }
+
+    public Animal theStrongest(Vector2d position){
+        animalsAtTheSameSpot = new ArrayList<Animal>();
+        for(Animal animal: animals){
+            if(animal.getPosition().equals(position)){
+                animalsAtTheSameSpot.add(animal);
+            }
+        }
+        if(theMostEnergy(animalsAtTheSameSpot) != null){
+            return theMostEnergy(animalsAtTheSameSpot);
+        }
+        else{
+            if(theOldest(animalsAtTheSameSpot) != null){
+                return theOldest(animalsAtTheSameSpot);
+            }
+            else{
+                if(hasTheMostKids(animalsAtTheSameSpot) != null){
+                    return hasTheMostKids(animalsAtTheSameSpot);
+                }
+                else{
+                    return chooseRandom(animalsAtTheSameSpot);
+                }
+            }
+        }
+    }
+
+    public Animal theMostEnergy(ArrayList<Animal> animalsAtTheSameSpot) {
+        int maxEnergy = 0;
+        int counter = 1; // how many of the animals have the same maximum energy
+        Animal theBest = null;
+        for (Animal animal : animalsAtTheSameSpot) {
+            if (maxEnergy < animal.getEnergy()) {
+                maxEnergy = animal.getEnergy();
+                theBest = animal;
+                counter = 1;
+            }
+            else if (maxEnergy == animal.getEnergy()) {
+                counter += 1;
+            }
+        }
+        if (counter > 1) {
+            return null;
+        }
+        return theBest;
+    }
+
+    public Animal theOldest(ArrayList<Animal> animalsAtTheSameSpot){
+        int maxAge = 0;
+        int counter = 1; // how many of the animals have the same maximum energy
+        Animal theBest = null;
+        for (Animal animal : animalsAtTheSameSpot) {
+            if (maxAge < animal.getAge()) {
+                maxAge = animal.getAge();
+                theBest = animal;
+                counter = 1;
+            }
+            else if (maxAge == animal.getAge()) {
+                counter += 1;
+            }
+        }
+        if (counter > 1) {
+            return null;
+        }
+        return theBest;
+    }
+
+    public Animal hasTheMostKids(ArrayList<Animal> animalsAtTheSameSpot){
+        int maxKids = 0;
+        int counter = 1; // how many of the animals have the same maximum energy
+        Animal theBest = null;
+        for (Animal animal : animalsAtTheSameSpot) {
+            if (maxKids < animal.getKidsCounter()) {
+                maxKids = animal.getKidsCounter();
+                theBest = animal;
+                counter = 1;
+            }
+            else if (maxKids == animal.getKidsCounter()) {
+                counter += 1;
+            }
+        }
+        if (counter > 1) {
+            return null;
+        }
+        return theBest;
+    }
+
+    public Animal chooseRandom(ArrayList<Animal> animalsAtTheSameSpot) {
+        int maxEnergy = 0;
+        int howMany = 0;
+        animalsWithTheSameEnergy = new ArrayList<Animal>();
+        for (Animal animal : animalsAtTheSameSpot) {
+            maxEnergy = max(maxEnergy, animal.getEnergy());
+        }
+        for(Animal animal : animalsAtTheSameSpot){
+            if(animal.getEnergy() == maxEnergy){
+                animalsWithTheSameEnergy.add(animal);
+                howMany += 1;
+            }
+        }
+        int choose = random.nextInt(howMany);
+        return animalsWithTheSameEnergy.get(choose);
     }
 
     @Override
