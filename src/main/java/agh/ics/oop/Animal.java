@@ -5,9 +5,10 @@ import java.util.Random;
 
 public class Animal {
 
+    private int age;
+    private int kidsCounter;
     private WorldMap map;
     private int energy;
-    private int age;
     private int childrenCount;
     public GeneDirection[] dna;
     private Vector2d position;
@@ -97,9 +98,9 @@ public class Animal {
     // probably can be void but for testing
     public Animal makeChild(Animal father){
         this.updateEnergy(map.manager.energyLossForChild);
+        this.kidsCounter += 1;
         father.updateEnergy(map.manager.energyLossForChild);
-        this.updateChildrenCount();
-        father.updateChildrenCount();
+        father.kidsCounter += 1;
         GeneDirection[] childDna = this.crossDna(father);
         this.map.manager.getMutationType().mutation(childDna);
         return new Animal(childDna, this.position, this.map);
@@ -113,20 +114,12 @@ public class Animal {
         this.energy = this.energy + plantsEnergy;
     }
 
-    public int getEnergy(){
-        return this.energy;
-    }
-
     public boolean isDead(){
         return this.energy == 0;
     }
 
     public Vector2d getPosition() {
         return position;
-    }
-
-    public int getAge(){
-        return age;
     }
 
     public void getsDayOlder(){
@@ -160,6 +153,16 @@ public class Animal {
     public GeneDirection getDirection() {
         return direction;
     }
+
+    public int getEnergy(){
+        return this.energy;
+    }
+
+    public int getAge(){
+        return this.age;
+    }
+
+    public int getKidsCounter(){ return this.kidsCounter; }
 
     @Override
     public String toString(){

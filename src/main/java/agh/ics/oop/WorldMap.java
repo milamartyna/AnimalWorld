@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+import static java.lang.Math.max;
+
 class WorldMap {
 
     public final VariableManager manager;
@@ -147,7 +149,6 @@ class WorldMap {
     public boolean isOccupied(Vector2d position) {
         return this.objectAt(position) != null;
     }
-
     @Override
     public String toString(){
         return mapVisualiser.draw(startMap, endMap);
