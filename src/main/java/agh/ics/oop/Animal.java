@@ -24,8 +24,6 @@ public class Animal {
         this.activeGene = random.nextInt(map.manager.dnaLength);
         this.direction = GeneDirection.generateGeneDirection();
         this.map.placeAnimal(this);
-        this.age = 0;
-        this.kidsCounter = 0;
     }
 
     // constructor for factory made animals
@@ -37,8 +35,6 @@ public class Animal {
         this.activeGene = 0; // not sure
         this.direction = GeneDirection.generateGeneDirection();
         this.map.placeAnimal(this); // important to place the animal after setting all the parameters
-        this.age = 0;  // age define how many days does animal live
-        this.kidsCounter = 0;  // how many kids does animal have
     }
 
     private GeneDirection[] generateDna(){
