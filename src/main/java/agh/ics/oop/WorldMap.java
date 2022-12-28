@@ -99,7 +99,6 @@ class WorldMap {
                     mother.makeChild(father);
                 }
             }
-
         }
     }
 

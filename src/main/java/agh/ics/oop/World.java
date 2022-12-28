@@ -1,7 +1,5 @@
 package agh.ics.oop;
 
-import java.io.PrintStream;
-import java.util.*;
 
 public class World {
 
@@ -28,7 +26,6 @@ public class World {
 
         SimulationEngine engine = new SimulationEngine(manager, map);
         engine.run();
-
 
     }
 }
