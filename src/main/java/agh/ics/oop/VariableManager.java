@@ -6,9 +6,16 @@ public class VariableManager {
     // what are the constants like width and height of the map
     private int width = 10;
     private int height = 10;
-    public final int startEnergyForAll = 9;
+
+    public final int startAnimalCount = 4;
+    public final int startPlantsCount = 20;
+    public final int plantsEachDayCount = 5;
+    public final int startEnergyForFactoryAnimals = 20;
     public final int dnaLength = 9;
     public final int energyLossForChild = 5;
+    public final int plantsEnergy = 2;
+    public final int energyRequiredToProcreate = 7;
+    // energyRequiredToProcreate >= energyLossForChild
 
     private IMapType mapType;
     private IMutationType mutationType;
@@ -18,7 +25,7 @@ public class VariableManager {
     // here I think there should be a passed an array of length 4 of bool values which corresponds
     // to which variable should be chosen
     public VariableManager(){
-        setMapType(true);
+        setMapType(false);
         setGardenType(true);
         setMutationType(false);
         setBehaviorType(true);

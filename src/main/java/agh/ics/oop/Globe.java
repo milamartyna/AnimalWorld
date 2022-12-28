@@ -7,8 +7,8 @@ public class Globe implements IMapType{
     public void walksOutOfBounds(Animal animal, WorldMap map) {
 
         // if animal goes out of map in the corner, we give priority to North/South Pole
-        if(animal.getPosition().y() > map.endMap.y() || animal.getPosition().y() < map.endMap.y()){
-            GeneDirection newDirection = animal.getGeneDirection().opposite();
+        if(animal.getPosition().y() > map.endMap.y() || animal.getPosition().y() < map.startMap.y()){
+            GeneDirection newDirection = animal.getDirection().opposite();
             Vector2d backToMap = newDirection.toUnitVector();
             animal.setPosition(animal.getPosition().add(backToMap));
             animal.setDirection(newDirection);

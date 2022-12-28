@@ -7,6 +7,8 @@ public class Animal {
 
     private WorldMap map;
     private int energy;
+    private int age;
+    private int childrenCount;
     public GeneDirection[] dna;
     private Vector2d position;
     private GeneDirection direction;
@@ -18,6 +20,8 @@ public class Animal {
         this.map = map;
         // because after procreation the map animal energy sum should remain the same
         this.energy = map.manager.energyLossForChild * 2;
+        this.age = 0;
+        this.childrenCount = 0;
         this.dna = dna;
         this.position = position;
         this.activeGene = random.nextInt(map.manager.dnaLength);
@@ -28,7 +32,9 @@ public class Animal {
     // constructor for factory made animals
     public Animal(WorldMap map){
         this.map = map;
-        this.energy = map.manager.startEnergyForAll; // coś nie halo
+        this.energy = map.manager.startEnergyForFactoryAnimals;
+        this.age = 0;
+        this.childrenCount = 0;
         this.dna = generateDna();
         this.position = this.map.generateMapPosition(); // don't know if that's correct
         this.activeGene = 0; // not sure
@@ -88,9 +94,12 @@ public class Animal {
     }
 
     // this method should not be called unless animals are on the same position
+    // probably can be void but for testing
     public Animal makeChild(Animal father){
         this.updateEnergy(map.manager.energyLossForChild);
         father.updateEnergy(map.manager.energyLossForChild);
+        this.updateChildrenCount();
+        father.updateChildrenCount();
         GeneDirection[] childDna = this.crossDna(father);
         this.map.manager.getMutationType().mutation(childDna);
         return new Animal(childDna, this.position, this.map);
@@ -98,6 +107,14 @@ public class Animal {
 
     public void updateEnergy(int loss){
         this.energy = this.energy - loss;
+    }
+
+    public void eatsPlant(int plantsEnergy){
+        this.energy = this.energy + plantsEnergy;
+    }
+
+    public int getEnergy(){
+        return this.energy;
     }
 
     public boolean isDead(){
@@ -108,16 +125,28 @@ public class Animal {
         return position;
     }
 
+    public int getAge(){
+        return age;
+    }
+
+    public void getsDayOlder(){
+        this.age = age + 1;
+    }
+
+    public int getChildrenCount() {
+        return childrenCount;
+    }
+
+    public void updateChildrenCount(){
+        this.childrenCount = childrenCount + 1;
+    }
+
     public void setPosition(Vector2d position) {
         this.position = position;
     }
 
     public void setDirection(GeneDirection geneDirection){
         this.direction = geneDirection;
-    }
-
-    public GeneDirection getGeneDirection(){
-        return direction;
     }
 
     public WorldMap getMap() {
@@ -127,6 +156,11 @@ public class Animal {
     public GeneDirection[] getDna(){
         return this.dna;
     }
+
+    public GeneDirection getDirection() {
+        return direction;
+    }
+
     @Override
     public String toString(){
         return "A";
