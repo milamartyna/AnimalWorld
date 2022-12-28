@@ -6,7 +6,6 @@ import java.util.Random;
 public class Animal {
 
     private int age;
-    private int kidsCounter;
     private WorldMap map;
     private int energy;
     private int childrenCount;
@@ -98,9 +97,9 @@ public class Animal {
     // probably can be void but for testing
     public Animal makeChild(Animal father){
         this.updateEnergy(map.manager.energyLossForChild);
-        this.kidsCounter += 1;
+        this.updateChildrenCount();
+        father.updateChildrenCount();
         father.updateEnergy(map.manager.energyLossForChild);
-        father.kidsCounter += 1;
         GeneDirection[] childDna = this.crossDna(father);
         this.map.manager.getMutationType().mutation(childDna);
         return new Animal(childDna, this.position, this.map);
@@ -131,7 +130,7 @@ public class Animal {
     }
 
     public void updateChildrenCount(){
-        this.childrenCount = childrenCount + 1;
+        this.childrenCount = this.childrenCount + 1;
     }
 
     public void setPosition(Vector2d position) {
@@ -161,8 +160,6 @@ public class Animal {
     public int getAge(){
         return this.age;
     }
-
-    public int getKidsCounter(){ return this.kidsCounter; }
 
     @Override
     public String toString(){
