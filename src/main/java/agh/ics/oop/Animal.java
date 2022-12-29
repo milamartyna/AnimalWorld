@@ -114,7 +114,7 @@ public class Animal {
     }
 
     public boolean isDead(){
-        return this.energy == 0;
+        return this.energy <= 0;
     }
 
     public Vector2d getPosition() {
@@ -123,6 +123,7 @@ public class Animal {
 
     public void getsDayOlder(){
         this.age = age + 1;
+        this.energy = energy - map.manager.energyLossForEachDay;
     }
 
     public int getChildrenCount() {

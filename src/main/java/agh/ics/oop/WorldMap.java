@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-import static java.lang.Math.max;
-
 class WorldMap {
 
     public final VariableManager manager;
@@ -26,6 +24,7 @@ class WorldMap {
         this.manager = manager;
         this.mapAsPositions = this.setMapAsPositions();
         this.animalsOnPositions = this.setAnimalsOnPositions();
+        this.setPlacesOfDeath();
         manager.getGardenType().seedPlants(this, manager.startPlantsCount);
         this.setUpMap();
     }
@@ -73,10 +72,10 @@ class WorldMap {
         for(Vector2d mapPosition : this.mapAsPositions){
             ArrayList<Animal> animalsOnTheSamePosition = this.animalsOnPositions.get(mapPosition);
             if(animalsOnTheSamePosition.size() >= 1){
+                System.out.println(animalsOnTheSamePosition.size());
                 Animal bestAnimal = this.bestAnimalWins(animalsOnTheSamePosition);
                 bestAnimal.eatsPlant(this.manager.plantsEnergy);
                 this.plantIsEaten(mapPosition);
-                // Don't know what to with this regarding Toxic Fields
                 this.manager.getGardenType().plantIsEaten(this, mapPosition);
             }
         }
@@ -111,17 +110,19 @@ class WorldMap {
     }
 
     private void gravedigger(){
+        ArrayList<Animal> deadAnimals = new ArrayList<>();
         for(Animal animal : animals){
+            animal.getsDayOlder();
             if(animal.isDead()){
                 Vector2d position = animal.getPosition();
+                animalsOnPositions.get(position).remove(animal);
                 int value = placesOfDeath.get(position);
                 placesOfDeath.remove(position);
                 placesOfDeath.put(position, value + 1);
-                animals.remove(animal);
-            }else {
-                animal.getsDayOlder();
+                deadAnimals.add(animal);
             }
         }
+        animals.removeAll(deadAnimals);
     }
 
     public void addPlant(Vector2d position){
@@ -157,6 +158,7 @@ class WorldMap {
     private Animal bestAnimalWins(ArrayList<Animal> competingAnimals){
         ArrayList<Animal> mostEnergetic = this.mostSomething(competingAnimals, 0);
         if(mostEnergetic.size() == 1){
+            System.out.println("here");
             return mostEnergetic.get(0);
         }else {
             ArrayList<Animal> oldest = this.mostSomething(mostEnergetic, 1);
@@ -193,6 +195,7 @@ class WorldMap {
 
     private int attributeValueThatMatters(Animal animal, int index){
         if(index == 0){
+            System.out.println(animal.getEnergy());
             return animal.getEnergy();
         } else if (index == 1) {
             return animal.getAge();
@@ -242,6 +245,21 @@ class WorldMap {
     private boolean isOutOfBounds(Vector2d position){
         return position.x() < startMap.x() || position.x() > endMap.x() ||
                 position.y() < startMap.y() || position.y() > endMap.y();
+    }
+
+    private void setPlacesOfDeath() {
+        int height = this.manager.getHeight();
+        int width = this.manager.getWidth();
+        for(int i = 0; i < height; i++){
+            for(int j = 0; j < width; j++) {
+                Vector2d position = new Vector2d(i, j);
+                placesOfDeath.put(position, 0);
+            }
+        }
+    }
+
+    public HashMap<Vector2d, Integer> getPlacesOfDeath(){
+        return this.placesOfDeath;
     }
 
 }

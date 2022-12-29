@@ -7,16 +7,16 @@ public class VariableManager {
     private int width = 10;
     private int height = 10;
 
-    public final int startAnimalCount = 4;
-    public final int startPlantsCount = 20;
-    public final int plantsEachDayCount = 5;
-    public final int startEnergyForFactoryAnimals = 20;
+    public final int startAnimalCount = 10;
+    public final int startPlantsCount = 4;
+    public final int plantsEachDayCount = 1;
+    public final int startEnergyForFactoryAnimals = 2;
     public final int dnaLength = 9;
     public final int energyLossForChild = 5;
-    public final int plantsEnergy = 2;
+    public final int plantsEnergy = 1;
     public final int energyRequiredToProcreate = 7;
     // energyRequiredToProcreate >= energyLossForChild
-
+    public final int energyLossForEachDay = 1;
     private IMapType mapType;
     private IMutationType mutationType;
     private IGardenType gardenType;
@@ -26,7 +26,7 @@ public class VariableManager {
     // to which variable should be chosen
     public VariableManager(){
         setMapType(false);
-        setGardenType(true);
+        setGardenType(false);
         setMutationType(false);
         setBehaviorType(true);
     }

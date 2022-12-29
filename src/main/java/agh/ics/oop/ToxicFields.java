@@ -6,7 +6,6 @@ public class ToxicFields implements IGardenType{
 
     private final int mapWidth;
     private final int mapHeight;
-    public HashMap<Vector2d, Integer> placesOfDeath = new HashMap<>();
     LinkedList<Vector2d> preferredSpots;
     LinkedList<Vector2d> nonPreferredSpots;
     Random random = new Random();
@@ -14,12 +13,11 @@ public class ToxicFields implements IGardenType{
     public ToxicFields(int width, int height){
         this.mapWidth = width;
         this.mapHeight = height;
-        this.setHashMap();
-        this.setSpotsLists(sortHashmap(placesOfDeath));
     }
 
     @Override
     public void seedPlants(WorldMap map, int seedCount) {
+        this.setSpotsLists(sortHashmap(map.getPlacesOfDeath()));
         Collections.shuffle(this.preferredSpots);
         Collections.shuffle(this.nonPreferredSpots);
         while (seedCount > 0){
@@ -72,19 +70,10 @@ public class ToxicFields implements IGardenType{
         return sortedMap;
     }
 
-    private void setHashMap() {
-        for(int i = 0; i < this.mapHeight; i++){
-            for(int j = 0; j < this.mapWidth; j++) {
-                Vector2d position = new Vector2d(i, j);
-                placesOfDeath.put(position, 0);
-            }
-        }
-    }
-
     // I want to make (non)prefered spots constantly updated
     private void setSpotsLists(HashMap<Vector2d, Integer> hashMap){
-        LinkedList<Vector2d> preferredSpots = new LinkedList<>();
-        LinkedList<Vector2d> nonPreferredSpots = new LinkedList<>();
+        preferredSpots = new LinkedList<>();
+        nonPreferredSpots = new LinkedList<>();
         int area = mapHeight*mapWidth;
         int numOfPreferedSpots = (int) (area * 0.2);
         int counter = 0;
