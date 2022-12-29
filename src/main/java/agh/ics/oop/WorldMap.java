@@ -43,17 +43,19 @@ class WorldMap {
         manager.getGardenType().seedPlants(this, manager.plantsEachDayCount);
 
         // for testing
-        for (Animal animal : animals){
-            System.out.println("Animal");
-            System.out.println("Position " + animal.getPosition());
-            System.out.println("Facing " + animal.getDirection());
-            System.out.println("Energy " + animal.getEnergy());
-            System.out.println("Age " + animal.getAge());
-            System.out.println("Kids Count " + animal.getChildrenCount());
-            System.out.println("___________");
-        }
-        System.out.println();
-        System.out.println();
+//        System.out.println("Animals after the NEXT DAY");
+//        for (Animal animal : animals){
+//            System.out.println("Animal");
+//            System.out.println("Position " + animal.getPosition());
+//            System.out.println("Facing " + animal.getDirection());
+//            System.out.println("Energy " + animal.getEnergy());
+//            System.out.println("Age " + animal.getAge());
+//            System.out.println("Kids Count " + animal.getChildrenCount());
+//            System.out.println("Animals On Places Has Map " + animalsOnPositions.get(animal.getPosition()));
+//            System.out.println("___________");
+//        }
+//        System.out.println();
+//        System.out.println();
     }
 
     private void animalsMove(){
@@ -72,7 +74,6 @@ class WorldMap {
         for(Vector2d mapPosition : this.mapAsPositions){
             ArrayList<Animal> animalsOnTheSamePosition = this.animalsOnPositions.get(mapPosition);
             if(animalsOnTheSamePosition.size() >= 1){
-                System.out.println(animalsOnTheSamePosition.size());
                 Animal bestAnimal = this.bestAnimalWins(animalsOnTheSamePosition);
                 bestAnimal.eatsPlant(this.manager.plantsEnergy);
                 this.plantIsEaten(mapPosition);
@@ -158,7 +159,6 @@ class WorldMap {
     private Animal bestAnimalWins(ArrayList<Animal> competingAnimals){
         ArrayList<Animal> mostEnergetic = this.mostSomething(competingAnimals, 0);
         if(mostEnergetic.size() == 1){
-            System.out.println("here");
             return mostEnergetic.get(0);
         }else {
             ArrayList<Animal> oldest = this.mostSomething(mostEnergetic, 1);
@@ -195,7 +195,6 @@ class WorldMap {
 
     private int attributeValueThatMatters(Animal animal, int index){
         if(index == 0){
-            System.out.println(animal.getEnergy());
             return animal.getEnergy();
         } else if (index == 1) {
             return animal.getAge();

@@ -6,9 +6,9 @@ public class ToxicFields implements IGardenType{
 
     private final int mapWidth;
     private final int mapHeight;
-    LinkedList<Vector2d> preferredSpots;
-    LinkedList<Vector2d> nonPreferredSpots;
-    Random random = new Random();
+    private LinkedList<Vector2d> preferredSpots;
+    private LinkedList<Vector2d> nonPreferredSpots;
+    private static final Random random = new Random();
 
     public ToxicFields(int width, int height){
         this.mapWidth = width;
@@ -22,15 +22,15 @@ public class ToxicFields implements IGardenType{
         Collections.shuffle(this.nonPreferredSpots);
         while (seedCount > 0){
             boolean plantInJungle = this.isJungle();
-            Vector2d preferedPosition = preferredSpots.remove();
-            Vector2d nonPreferedPosition = nonPreferredSpots.remove();
-            if(plantInJungle && !map.isOccupied(preferedPosition)){
-                map.addPlant(preferedPosition);
-                this.nonPreferredSpots.add(nonPreferedPosition);
+            Vector2d preferredPosition = preferredSpots.remove();
+            Vector2d nonPreferredPosition = nonPreferredSpots.remove();
+            if(plantInJungle && !map.isOccupied(preferredPosition)){
+                map.addPlant(preferredPosition);
+                this.nonPreferredSpots.add(nonPreferredPosition);
             }
-            if(!plantInJungle && !map.isOccupied(nonPreferedPosition)){
-                map.addPlant(nonPreferedPosition);
-                this.preferredSpots.add(preferedPosition);
+            if(!plantInJungle && !map.isOccupied(nonPreferredPosition)){
+                map.addPlant(nonPreferredPosition);
+                this.preferredSpots.add(preferredPosition);
             }
             seedCount--;
         }
@@ -70,15 +70,15 @@ public class ToxicFields implements IGardenType{
         return sortedMap;
     }
 
-    // I want to make (non)prefered spots constantly updated
+    // I want to make (non)preferred spots constantly updated
     private void setSpotsLists(HashMap<Vector2d, Integer> hashMap){
         preferredSpots = new LinkedList<>();
         nonPreferredSpots = new LinkedList<>();
         int area = mapHeight*mapWidth;
-        int numOfPreferedSpots = (int) (area * 0.2);
+        int numOfPreferredSpots = (int) (area * 0.2);
         int counter = 0;
         for (Map.Entry<Vector2d, Integer> entry : hashMap.entrySet()) {
-            if(counter <= numOfPreferedSpots){
+            if(counter <= numOfPreferredSpots){
                 preferredSpots.add(entry.getKey());
             }
             else{

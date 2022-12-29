@@ -9,7 +9,7 @@ public class VariableManager {
 
     public final int startAnimalCount = 10;
     public final int startPlantsCount = 4;
-    public final int plantsEachDayCount = 1;
+    public final int plantsEachDayCount = 4;
     public final int startEnergyForFactoryAnimals = 2;
     public final int dnaLength = 9;
     public final int energyLossForChild = 5;
@@ -25,10 +25,10 @@ public class VariableManager {
     // here I think there should be a passed an array of length 4 of bool values which corresponds
     // to which variable should be chosen
     public VariableManager(){
-        setMapType(false);
-        setGardenType(false);
-        setMutationType(false);
-        setBehaviorType(true);
+        setMapType(true);
+        setGardenType(true);
+        setMutationType(true);
+        setBehaviorType(false);
     }
 
     private void setMapType(boolean flag){

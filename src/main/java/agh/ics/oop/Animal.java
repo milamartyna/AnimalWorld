@@ -105,8 +105,10 @@ public class Animal {
         return new Animal(childDna, this.position, this.map);
     }
 
+    // we can't have an animal with negative value, so if an animal walks out of bounds in hell gate
+    // it will zero the animals energy
     public void updateEnergy(int loss){
-        this.energy = this.energy - loss;
+        this.energy = Math.max(this.energy - loss, 0);
     }
 
     public void eatsPlant(int plantsEnergy){
@@ -123,7 +125,7 @@ public class Animal {
 
     public void getsDayOlder(){
         this.age = age + 1;
-        this.energy = energy - map.manager.energyLossForEachDay;
+        this.energy = this.energy - map.manager.energyLossForEachDay;
     }
 
     public int getChildrenCount() {
@@ -164,6 +166,6 @@ public class Animal {
 
     @Override
     public String toString(){
-        return "A";
+        return "A " + this.getEnergy();
     }
 }
