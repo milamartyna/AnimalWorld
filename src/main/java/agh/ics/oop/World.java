@@ -1,5 +1,7 @@
 package agh.ics.oop;
 
+import agh.ics.oop.gui.App;
+import javafx.application.Application;
 
 public class World {
 
@@ -26,6 +28,8 @@ public class World {
 
         SimulationEngine engine = new SimulationEngine(manager, map);
         engine.run();
+
+        Application.launch(App.class, args);
 
     }
 }

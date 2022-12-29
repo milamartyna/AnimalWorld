@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-class WorldMap {
+public class WorldMap {
 
     public final VariableManager manager;
     public Vector2d startMap;

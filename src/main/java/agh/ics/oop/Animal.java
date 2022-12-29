@@ -6,7 +6,7 @@ import java.util.Random;
 public class Animal {
 
     private int age;
-    private WorldMap map;
+    private final WorldMap map;
     private int energy;
     private int childrenCount;
     public GeneDirection[] dna;
@@ -29,7 +29,7 @@ public class Animal {
         this.map.placeAnimal(this);
     }
 
-    // constructor for factory made animals
+    // constructor for factory made Animals
     public Animal(WorldMap map){
         this.map = map;
         this.energy = map.manager.startEnergyForFactoryAnimals;
@@ -52,7 +52,6 @@ public class Animal {
 
     public void move(){
         this.direction = this.direction.turn(this.dna[this.activeGene]);
-        // the change of the active gene
         this.activeGene = this.map.manager.getBehaviorType().geneActivation(this.activeGene);
         this.position = this.position.add(this.direction.toUnitVector());
     }
@@ -94,15 +93,14 @@ public class Animal {
     }
 
     // this method should not be called unless animals are on the same position
-    // probably can be void but for testing
-    public Animal makeChild(Animal father){
+    public void makeChild(Animal father){
         this.updateEnergy(map.manager.energyLossForChild);
         this.updateChildrenCount();
         father.updateChildrenCount();
         father.updateEnergy(map.manager.energyLossForChild);
         GeneDirection[] childDna = this.crossDna(father);
         this.map.manager.getMutationType().mutation(childDna);
-        return new Animal(childDna, this.position, this.map);
+        new Animal(childDna, this.position, this.map);
     }
 
     // we can't have an animal with negative value, so if an animal walks out of bounds in hell gate

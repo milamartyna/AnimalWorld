@@ -12,7 +12,7 @@ public class GreenEquator implements IGardenType {
     private final int mapHeight;
     private final LinkedList<Vector2d> preferredSpots = new LinkedList<>();
     private final LinkedList<Vector2d> nonPreferredSpots = new LinkedList<>();
-    Random random = new Random();
+    private static final Random random = new Random();
 
     public GreenEquator(int width, int height){
         this.mapWidth = width;
