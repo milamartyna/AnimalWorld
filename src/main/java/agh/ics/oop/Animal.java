@@ -123,7 +123,7 @@ public class Animal {
 
     public void getsDayOlder(){
         this.age = age + 1;
-        this.energy = this.energy - map.manager.energyLossForEachDay;
+        this.energy = this.energy - map.manager.dailyEnergyLoss;
     }
 
     public int getChildrenCount() {

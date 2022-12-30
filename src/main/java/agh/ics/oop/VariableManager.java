@@ -2,33 +2,39 @@ package agh.ics.oop;
 
 public class VariableManager {
 
-    // the variable will parse the json(or sth like that) to get such information as what variant to use and
-    // what are the constants like width and height of the map
-    private int width = 10;
-    private int height = 10;
+    // we need to have getters, not public variables
+    private int width;
+    private int height;
+    public int startAnimalCount;
+    public int startPlantsCount;
+    public int plantsEachDayCount;
+    public int startEnergyForFactoryAnimals;
+    public int dnaLength;
+    public int energyLossForChild;
+    public int plantsEnergy;
+    public int energyRequiredToProcreate; // energyRequiredToProcreate >= energyLossForChild
+    public int dailyEnergyLoss;
 
-    public final int startAnimalCount = 10;
-    public final int startPlantsCount = 4;
-    public final int plantsEachDayCount = 4;
-    public final int startEnergyForFactoryAnimals = 2;
-    public final int dnaLength = 9;
-    public final int energyLossForChild = 5;
-    public final int plantsEnergy = 1;
-    public final int energyRequiredToProcreate = 7;
-    // energyRequiredToProcreate >= energyLossForChild
-    public final int energyLossForEachDay = 1;
+    private boolean mapTypeFlag; // True -> Globe
+    private boolean gardenTypeFlag; // True -> Green Equator
+    private boolean mutationTypeFlag; // True -> Total Randomness
+    private boolean behaviorTypeFlag; // True -> Craziness
+
     private IMapType mapType;
     private IMutationType mutationType;
     private IGardenType gardenType;
     private IBehaviorType behaviorType;
 
-    // here I think there should be a passed an array of length 4 of bool values which corresponds
-    // to which variable should be chosen
-    public VariableManager(){
-        setMapType(true);
-        setGardenType(true);
-        setMutationType(true);
-        setBehaviorType(false);
+    public ParametersParser parametersParser;
+
+    public VariableManager(ParametersParser parametersParser){
+        this.parametersParser = parametersParser;
+        this.getParameters();
+
+        setMapType(mapTypeFlag);
+        setGardenType(gardenTypeFlag);
+        setMutationType(mutationTypeFlag);
+        setBehaviorType(behaviorTypeFlag);
     }
 
     private void setMapType(boolean flag){
@@ -57,9 +63,9 @@ public class VariableManager {
 
     private void setBehaviorType(boolean flag){
         if(flag){
-            this.behaviorType = new CompletePredestination(dnaLength);
-        }else {
             this.behaviorType = new Craziness(dnaLength);
+        }else {
+            this.behaviorType = new CompletePredestination(dnaLength);
         }
     }
 
@@ -87,4 +93,22 @@ public class VariableManager {
         return height;
     }
 
+    public void getParameters(){
+        this.width = parametersParser.width;
+        this.height = parametersParser.height;
+        this.startAnimalCount = parametersParser.startAnimalCount;
+        this.startPlantsCount = parametersParser.startPlantsCount;
+        this.dailyEnergyLoss = parametersParser.dailyEnergyLoss;
+        this.energyRequiredToProcreate = parametersParser.energyRequiredToProcreate;
+        this.energyLossForChild = parametersParser.energyLossForChild;
+        this.startEnergyForFactoryAnimals = parametersParser.startEnergyForFactoryAnimals;
+        this.dnaLength = parametersParser.dnaLength;
+        this.plantsEnergy = parametersParser.plantsEnergy;
+        this.plantsEachDayCount = parametersParser.plantsEachDayCount;
+
+        this.mapTypeFlag = parametersParser.mapType;
+        this.gardenTypeFlag = parametersParser.gardenType;
+        this.mutationTypeFlag = parametersParser.mutationType;
+        this.behaviorTypeFlag = parametersParser.behaviorType;
+    }
 }
