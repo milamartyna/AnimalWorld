@@ -29,7 +29,7 @@ public class App extends Application {
     private HBox world;
     private boolean parametersAccepted;
     private  boolean mapsAndEnginesCreated;
-    GridPane worldGridPane = new GridPane();
+    private GridPane worldGridPane = new GridPane();
 
     @Override
     public void start(Stage primaryStage) throws InterruptedException {
@@ -54,17 +54,17 @@ public class App extends Application {
 
     public void getParametersFromUser(Stage primaryStage)
     {
-        Scene scene = new Scene(createArgumentGetter(), 700, 850);
+        Scene scene = new Scene(createArgumentGetter(), 1000, 480);
         primaryStage.setScene(scene);
-        primaryStage.setResizable(true);
+        primaryStage.setResizable(false);
         primaryStage.setTitle("Animal World");
         primaryStage.show();
     }
 
-    private VBox createArgumentGetter(){
-        VBox vBox = new VBox();
-        vBox.setSpacing(0);
-        vBox.setAlignment(Pos.BASELINE_CENTER);
+    private HBox createArgumentGetter(){
+        HBox hBox = new HBox();
+        hBox.setSpacing(50);
+        hBox.setAlignment(Pos.BASELINE_CENTER);
 
         Slider[] sliders = new Slider[11];
 
@@ -98,32 +98,43 @@ public class App extends Application {
                 "Number Of New Plants Each Day"
         };
 
-        for(int i = 0; i < numericParameters.length; i++) {
-            this.addLabelAndSlider(sliders, i, vBox, numericParameters[i], stringParameters[i]);
+        VBox vBoxLeft = new VBox();
+        vBoxLeft.setSpacing(3);
+        vBoxLeft.setAlignment(Pos.CENTER);
+
+        for(int i = 0; i < numericParameters.length / 2; i++) {
+            this.addLabelAndSliderToSideVBox(sliders, i, vBoxLeft, numericParameters[i], stringParameters[i]);
+        }
+
+        VBox vBoxRight = new VBox();
+        vBoxRight.setSpacing(3);
+        vBoxRight.setAlignment(Pos.CENTER);
+        for(int i = numericParameters.length / 2; i < numericParameters.length; i++) {
+            this.addLabelAndSliderToSideVBox(sliders, i, vBoxRight, numericParameters[i], stringParameters[i]);
         }
 
         String[][] variantChoices = {
-                {"Globe", "Hell Gate"},
-                {"Green Equator", "Toxic Fields"},
-                {"CompletePredestination", "Craziness"},
-                {"Total Randomness", "Slight Correction"}
+                {"Globe", "Hell Gate", "Map Type"},
+                {"Green Equator", "Toxic Fields", "Garden Type"},
+                {"CompletePredestination", "Craziness", "Behaviour Type"},
+                {"Total Randomness", "Slight Correction", "Mutation Type"}
         };
 
-        // here we should add check boxes for different variants -> Hell Gate / Globe...
+        VBox vBoxCheckBoxes = new VBox();
+        vBoxCheckBoxes.setSpacing(3);
+        vBoxCheckBoxes.setAlignment(Pos.CENTER);
+
         ChoiceBox[] choiceBoxes = new ChoiceBox[4];
-
         for(int i = 0; i < variantChoices.length; i++){
-            ChoiceBox<String> variant = new ChoiceBox<>();
-            variant.setItems(FXCollections.observableArrayList(variantChoices[i][0], variantChoices[i][1]));
-            choiceBoxes[i] = variant;
-            vBox.getChildren().add(variant);
+            this.addLabelAndCheckBox(choiceBoxes, i, vBoxCheckBoxes, variantChoices[i]);
         }
+        hBox.getChildren().addAll(vBoxLeft, vBoxRight, vBoxCheckBoxes);
 
-        this.addAcceptButton(vBox, sliders, choiceBoxes, variantChoices);
-        return vBox;
+        this.addAcceptButton(vBoxCheckBoxes, sliders, choiceBoxes, variantChoices);
+        return hBox;
     }
 
-    private void addLabelAndSlider(Slider[] sliders, int index, VBox vbox, int[] parameters, String title)
+    private void addLabelAndSliderToSideVBox(Slider[] sliders, int index, VBox vBox, int[] parameters, String title)
     {
         Label label = new Label(title);
         int min = parameters[0];
@@ -143,15 +154,28 @@ public class App extends Application {
         slider.setAccessibleText(title);
         slider.setSnapToTicks(true);
 
+        slider.setPrefWidth(300);
+        slider.setPrefHeight(50);
+
         sliders[index] = slider;
 
         VBox.setMargin(slider, new Insets(0, 10, 0, 10));
 
-        vbox.getChildren().add(label);
-        vbox.getChildren().add(slider);
+        vBox.getChildren().add(label);
+        vBox.getChildren().add(slider);
     }
 
-    private void addAcceptButton(VBox vbox, Slider[] sliders, ChoiceBox[] choiceBoxes, String[][] variantChoices)
+    private void addLabelAndCheckBox(ChoiceBox[] choiceBoxes, int index, VBox vBox, String[] variantChoices){
+        Label label = new Label(variantChoices[2]);
+        ChoiceBox<String> variant = new ChoiceBox<>();
+        variant.setItems(FXCollections.observableArrayList(variantChoices[0], variantChoices[1]));
+        choiceBoxes[index] = variant;
+        VBox.setMargin(variant, new Insets(0, 10, 5, 10));
+        vBox.getChildren().add(label);
+        vBox.getChildren().add(variant);
+    }
+
+    private void addAcceptButton(VBox vBox, Slider[] sliders, ChoiceBox[] choiceBoxes, String[][] variantChoices)
     {
         Button button = new Button("Accept parameters");
         button.setOnAction(e -> {
@@ -180,7 +204,7 @@ public class App extends Application {
 
         });
 
-        vbox.getChildren().add(button);
+        vBox.getChildren().add(button);
     }
 
     private void parseVariantChoices(ChoiceBox[] choicesBox, String[][] variantChoices){
@@ -197,7 +221,7 @@ public class App extends Application {
                 wait();
         }
 
-        createMapsAndEngines();
+        createMapsAndEngine();
 
         // creating necessary gui elements for maps
         Platform.runLater(() -> {
@@ -221,7 +245,7 @@ public class App extends Application {
         
     }
 
-    public void createMapsAndEngines()
+    public void createMapsAndEngine()
     {
         this.map = new WorldMap(manager);
         this.engine = new SimulationEngine(manager, map);

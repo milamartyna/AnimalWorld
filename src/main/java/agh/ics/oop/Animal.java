@@ -164,7 +164,7 @@ public class Animal implements IMapElement{
 
     @Override
     public String toString(){
-        return "A " + this.getEnergy();
+        return "A ";
     }
 
     @Override
