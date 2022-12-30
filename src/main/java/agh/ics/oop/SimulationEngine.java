@@ -1,7 +1,9 @@
 package agh.ics.oop;
 
-public class SimulationEngine {
+import javafx.scene.layout.GridPane;
 
+public class SimulationEngine {
+    private GridPane gridPane;
     private VariableManager manager;
     private WorldMap map;
 
@@ -19,4 +21,7 @@ public class SimulationEngine {
 
     }
 
+    public void setGridPane(GridPane gridPane) {
+        this.gridPane = gridPane;
+    }
 }

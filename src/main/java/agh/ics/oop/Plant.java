@@ -1,6 +1,6 @@
 package agh.ics.oop;
 
-public class Plant {
+public class Plant implements IMapElement{
 
     private final Vector2d position;
 
@@ -14,6 +14,11 @@ public class Plant {
 
     @Override
     public String toString(){
+        return "*";
+    }
+
+    @Override
+    public String getImage() {
         return "*";
     }
 }

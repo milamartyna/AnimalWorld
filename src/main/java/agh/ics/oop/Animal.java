@@ -3,7 +3,7 @@ package agh.ics.oop;
 import java.util.Arrays;
 import java.util.Random;
 
-public class Animal {
+public class Animal implements IMapElement{
 
     private int age;
     private final WorldMap map;
@@ -165,5 +165,10 @@ public class Animal {
     @Override
     public String toString(){
         return "A " + this.getEnergy();
+    }
+
+    @Override
+    public String getImage() {
+        return "A";
     }
 }

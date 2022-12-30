@@ -2,28 +2,54 @@ package agh.ics.oop.gui;
 
 import agh.ics.oop.*;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 
 public class App extends Application {
-
+    private double GRID_SIZE = 480.0;
+    private double CELL_WIDTH;
+    private double CELL_HEIGHT;
+    private SimulationEngine engine;
     private WorldMap map;
     private ParametersParser parametersParser;
     private VariableManager manager;
+    private HBox world;
+    private boolean parametersAccepted;
+    private  boolean mapsAndEnginesCreated;
+    GridPane worldGridPane = new GridPane();
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws InterruptedException {
         this.parametersParser = new ParametersParser();
         getParametersFromUser(primaryStage);
+        Thread mapCreationThread = new Thread(() -> {
+            try {
+                makeMapStage(primaryStage);
+            } catch (InterruptedException | IllegalStateException | IllegalArgumentException e ) {
+                System.out.println(e.getMessage());
+            }
+        });
+
+        Thread mapThread = new Thread(this::startEngines);
+
+        mapCreationThread.setDaemon(true);
+        mapThread.setDaemon(true);
+
+        mapCreationThread.start();
+        mapThread.start();
     }
 
     public void getParametersFromUser(Stage primaryStage)
@@ -37,15 +63,15 @@ public class App extends Application {
 
     private VBox createArgumentGetter(){
         VBox vBox = new VBox();
-        vBox.setSpacing(10);
+        vBox.setSpacing(0);
         vBox.setAlignment(Pos.BASELINE_CENTER);
 
         Slider[] sliders = new Slider[11];
 
         int[][] numericParameters = {
             // min, max, default Value, Major Tick
-            {5, 30, 20, 5}, // width
-            {5, 30, 20, 5}, // height
+            {5, 30, 10, 5}, // width
+            {5, 30, 10, 5}, // height
             {0, 100, 5, 20}, // amountOfAnimals
             {0, 100, 5, 20}, // amountOfPlants
             {1, 10, 3, 1}, // dailyEnergyLoss
@@ -145,8 +171,12 @@ public class App extends Application {
 
             this.manager = new VariableManager(parametersParser);
             this.map = new WorldMap(manager);
-            SimulationEngine engine = new SimulationEngine(manager, map);
-            engine.run();
+
+            synchronized(this)
+            {
+                parametersAccepted = true;
+                notifyAll();
+            }
 
         });
 
@@ -158,6 +188,132 @@ public class App extends Application {
         this.parametersParser.setGardenType(choicesBox[1].getValue() == variantChoices[1][0]);
         this.parametersParser.setBehaviorType(choicesBox[2].getValue() == variantChoices[2][0]);
         this.parametersParser.setMutationType(choicesBox[3].getValue() == variantChoices[3][0]);
+    }
+
+    public void makeMapStage(Stage welcomeStage) throws InterruptedException {
+
+        synchronized (this) {
+            while (!parametersAccepted)
+                wait();
+        }
+
+        createMapsAndEngines();
+
+        // creating necessary gui elements for maps
+        Platform.runLater(() -> {
+            Stage mapStage = createGuiMaps(welcomeStage);
+
+            // hide previous window, show the new one
+            welcomeStage.hide();
+            mapStage.show();
+
+            // center window on screen
+            Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+            mapStage.setX((primScreenBounds.getWidth() - mapStage.getWidth()) / 2);
+            mapStage.setY((primScreenBounds.getHeight() - mapStage.getHeight()) / 2);
+        });
+
+        synchronized (this)
+        {
+            mapsAndEnginesCreated = true;
+            notifyAll();
+        }
+        
+    }
+
+    public void createMapsAndEngines()
+    {
+        this.map = new WorldMap(manager);
+        this.engine = new SimulationEngine(manager, map);
+        this.CELL_WIDTH = GRID_SIZE/(double) (map.endMap.x()+1);
+        this.CELL_HEIGHT = GRID_SIZE/(double) (map.endMap.y()+1);
+    }
+
+    public Stage createGuiMaps(Stage welcomeStage)
+    {
+        worldGridPane.setMaxHeight(GRID_SIZE);
+        worldGridPane.setMinHeight(GRID_SIZE);
+        worldGridPane.setMaxWidth(GRID_SIZE);
+        worldGridPane.setMinWidth(GRID_SIZE);
+
+        // adding references to GridPanes to engines (to let them modify them)
+        this.engine.setGridPane(worldGridPane);
+        this.world = new HBox(worldGridPane);
+        VBox.setMargin(world, new Insets(10));
+        createAndAddAxisLabels(worldGridPane);
+        setColRowSizes(worldGridPane);
+        worldGridPane.setGridLinesVisible(true);
+
+        // creating new scene and stage
+        Scene scene = new Scene(world, 700, 700);
+        Stage mapStage = new Stage();
+        mapStage.setScene(scene);
+
+        return mapStage;
+    }
+
+    public void createAndAddAxisLabels(GridPane grid) {
+
+        for(int i = 0; i < map.endMap.y(); i++)
+        {
+            Label label = new Label(Integer.toString(map.endMap.y() - i));
+            GridPane.setHalignment(label, HPos.CENTER);
+            grid.add(label, 0, i + 1);
+        }
+        for(int i = 0; i < map.endMap.x(); i++)
+        {
+            Label label = new Label(Integer.toString(i + map.startMap.x()));
+            GridPane.setHalignment(label, HPos.CENTER);
+            grid.add(label, i + 1, 0);
+        }
+    }
+
+    private void setColRowSizes(GridPane grid)
+    {
+        //setting columns' sizes
+        for(int i = 0; i < map.endMap.x() + 1; i++)
+        {
+            ColumnConstraints column = new ColumnConstraints();
+            column.setMinWidth(CELL_WIDTH);
+            column.setMaxWidth(CELL_WIDTH);
+            grid.getColumnConstraints().add(column);
+        }
+
+        // setting rows' sizes
+        for(int i = 0; i < map.endMap.y() + 1; i++)
+        {
+            RowConstraints row = new RowConstraints();
+            row.setMaxHeight(CELL_HEIGHT);
+            row.setMinHeight(CELL_HEIGHT);
+            grid.getRowConstraints().add(row);
+        }
+    }
+
+    private void startEngines() {
+        synchronized (this)
+        {
+            while (!mapsAndEnginesCreated) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        Thread boundedThread = new Thread(() -> {
+            try {
+                while (true) {
+                    engine.run();
+                }
+            } catch(IllegalStateException e) {
+                System.out.println(e.getMessage());
+            }
+        });
+
+        boundedThread.setDaemon(true);
+        boundedThread.start();
+
     }
 
 }
