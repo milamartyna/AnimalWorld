@@ -34,6 +34,7 @@ public class SimulationEngine implements Runnable{
             e.printStackTrace();
         }
         this.map.nextDay();
+        System.out.println(map);
         try {
             this.app.nextDay();
         } catch (FileNotFoundException e) {

@@ -28,29 +28,77 @@ public class App extends Application {
     private HBox world;
     private boolean parametersAccepted;
     private  boolean mapsAndEnginesCreated;
-    private GridPane worldGridPane = new GridPane();
+    private GridPane worldGridPane;
 
     @Override
     public void start(Stage primaryStage) throws InterruptedException {
+        this.worldGridPane = new GridPane();
         this.parametersParser = new ParametersParser();
         getParametersFromUser(primaryStage);
     }
 
     public void getParametersFromUser(Stage primaryStage)
     {
-        Scene scene = new Scene(createArgumentGetter(), 1000, 480);
+        Button acceptButton = new Button("Accept Button");
+
+        VBox vBoxCheckBoxes = new VBox();
+        Slider[] sliders = new Slider[11];
+        ChoiceBox[] choiceBoxes = new ChoiceBox[4];
+        String[][] variantChoices = {
+                {"Globe", "Hell Gate", "Map Type"},
+                {"Green Equator", "Toxic Fields", "Garden Type"},
+                {"CompletePredestination", "Craziness", "Behaviour Type"},
+                {"Total Randomness", "Slight Correction", "Mutation Type"}
+        };
+
+        HBox configPanel = this.createArgumentGetter(sliders, choiceBoxes, variantChoices, vBoxCheckBoxes);
+        vBoxCheckBoxes.getChildren().add(acceptButton);
+        configPanel.getChildren().add(vBoxCheckBoxes);
+
+        Scene scene = new Scene(configPanel, 1000, 480);
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.setTitle("Animal World");
         primaryStage.show();
+
+        acceptButton.setOnAction(e -> {
+            this.parametersParser.setWidth((int) sliders[0].getValue());
+            this.parametersParser.setHeight((int) sliders[1].getValue());
+            this.parametersParser.setStartAnimalCount((int) sliders[2].getValue());
+            this.parametersParser.setStartPlantsCount((int) sliders[3].getValue());
+            this.parametersParser.setDailyEnergyLoss((int) sliders[4].getValue());
+            this.parametersParser.setEnergyRequiredToProcreate((int) sliders[5].getValue());
+            this.parametersParser.setEnergyLossForChild((int) sliders[6].getValue());
+            this.parametersParser.setStartEnergyForFactoryAnimals((int) sliders[7].getValue());
+            this.parametersParser.setDnaLength((int) sliders[8].getValue());
+            this.parametersParser.setPlantsEnergy((int) sliders[9].getValue());
+            this.parametersParser.setPlantsEachDayCount((int) sliders[10].getValue());
+
+            this.parseVariantChoices(choiceBoxes, variantChoices);
+
+            this.manager = new VariableManager(parametersParser);
+            this.map = new WorldMap(manager);
+
+            this.createScene();
+            Scene mapScene = new Scene(worldGridPane, 1000, 480);
+            primaryStage.setScene(mapScene);
+            primaryStage.setResizable(false);
+            primaryStage.setTitle("Animal Map");
+            primaryStage.show();
+
+            this.engine = new SimulationEngine(manager, map, this);
+            Thread simulation = new Thread(engine);
+            simulation.start();
+
+        });
+
+
     }
 
-    private HBox createArgumentGetter(){
+    private HBox createArgumentGetter(Slider[] sliders, ChoiceBox[] choiceBoxes, String[][] variantChoices, VBox vBoxCheckBoxes){
         HBox hBox = new HBox();
         hBox.setSpacing(50);
         hBox.setAlignment(Pos.BASELINE_CENTER);
-
-        Slider[] sliders = new Slider[11];
 
         int[][] numericParameters = {
             // min, max, default Value, Major Tick
@@ -90,6 +138,7 @@ public class App extends Application {
             this.addLabelAndSliderToSideVBox(sliders, i, vBoxLeft, numericParameters[i], stringParameters[i]);
         }
 
+
         VBox vBoxRight = new VBox();
         vBoxRight.setSpacing(3);
         vBoxRight.setAlignment(Pos.CENTER);
@@ -97,24 +146,15 @@ public class App extends Application {
             this.addLabelAndSliderToSideVBox(sliders, i, vBoxRight, numericParameters[i], stringParameters[i]);
         }
 
-        String[][] variantChoices = {
-                {"Globe", "Hell Gate", "Map Type"},
-                {"Green Equator", "Toxic Fields", "Garden Type"},
-                {"CompletePredestination", "Craziness", "Behaviour Type"},
-                {"Total Randomness", "Slight Correction", "Mutation Type"}
-        };
-
-        VBox vBoxCheckBoxes = new VBox();
         vBoxCheckBoxes.setSpacing(3);
         vBoxCheckBoxes.setAlignment(Pos.CENTER);
 
-        ChoiceBox[] choiceBoxes = new ChoiceBox[4];
         for(int i = 0; i < variantChoices.length; i++){
             this.addLabelAndCheckBox(choiceBoxes, i, vBoxCheckBoxes, variantChoices[i]);
         }
-        hBox.getChildren().addAll(vBoxLeft, vBoxRight, vBoxCheckBoxes);
+        hBox.getChildren().addAll(vBoxLeft, vBoxRight);
 
-        this.addAcceptButton(vBoxCheckBoxes, sliders, choiceBoxes, variantChoices);
+//        this.addAcceptButton(vBoxCheckBoxes, sliders, choiceBoxes, variantChoices);
         return hBox;
     }
 
@@ -179,7 +219,6 @@ public class App extends Application {
 
             this.manager = new VariableManager(parametersParser);
             this.map = new WorldMap(manager);
-            System.out.println("xxxx");
             this.engine = new SimulationEngine(manager, map, this);
             Thread simulation = new Thread(engine);
             simulation.start();
@@ -195,21 +234,20 @@ public class App extends Application {
             this.worldGridPane.getColumnConstraints().clear();
             this.worldGridPane.getRowConstraints().clear();
             this.worldGridPane.setGridLinesVisible(false);
-            try {
-                this.createScene();
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
+
+            this.createScene();
+
         });
 
     }
 
-    private void createScene() throws FileNotFoundException {
+    private void createScene() {
         this.createAndAddAxisLabels(worldGridPane);
         this.createAndAddElements(worldGridPane, map, this);
         this.setColRowSizes(worldGridPane);
         this.worldGridPane.setPadding(new Insets(10, 10, 10, 10));
         this.worldGridPane.setGridLinesVisible(true);
+
     }
 
     private void parseVariantChoices(ChoiceBox[] choicesBox, String[][] variantChoices){
@@ -268,6 +306,7 @@ public class App extends Application {
         // adding references to GridPanes to engines (to let them modify them)
         this.engine.setGridPane(worldGridPane);
         this.world = new HBox(worldGridPane);
+
         VBox.setMargin(world, new Insets(10));
         createAndAddAxisLabels(worldGridPane);
         setColRowSizes(worldGridPane);
