@@ -1,14 +1,10 @@
 package agh.ics.oop;
 
 import agh.ics.oop.gui.App;
-import javafx.application.Platform;
 import javafx.scene.layout.GridPane;
-
-import java.io.FileNotFoundException;
 
 public class SimulationEngine implements Runnable{
     private int MOVE_DELAY = 50;
-    private GridPane gridPane;
     private VariableManager manager;
     private WorldMap map;
     private final App app;
@@ -19,14 +15,6 @@ public class SimulationEngine implements Runnable{
         this.app = app;
     }
 
-    //public void run(){
-        // here should be whiled True
-      //  for (int i = 0; i < 5; i++){
-        //    map.nextDay();
-        //    System.out.println(map);
-      //  }
-   // }
-
     public void run() {
         try {
             Thread.sleep(MOVE_DELAY);
@@ -34,16 +22,8 @@ public class SimulationEngine implements Runnable{
             e.printStackTrace();
         }
         this.map.nextDay();
+        app.setScene();
         System.out.println(map);
-        try {
-            this.app.nextDay();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void setGridPane(GridPane gridPane) {
-        this.gridPane = gridPane;
     }
 
 }

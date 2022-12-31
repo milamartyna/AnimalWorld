@@ -7,27 +7,20 @@ import javafx.collections.FXCollections;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-import java.io.FileNotFoundException;
 
-
-public class App extends Application {
-    private double GRID_SIZE = 480.0;
-    private double CELL_WIDTH;
-    private double CELL_HEIGHT;
+public class App extends Application implements INextDayChange {
+    private double GRID_SIZE = 500.0;
+    private double width;
+    private double height;
     private SimulationEngine engine;
     private WorldMap map;
     private ParametersParser parametersParser;
     private VariableManager manager;
-    private HBox world;
-    private boolean parametersAccepted;
-    private  boolean mapsAndEnginesCreated;
     private GridPane worldGridPane;
 
     @Override
@@ -62,25 +55,14 @@ public class App extends Application {
         primaryStage.show();
 
         acceptButton.setOnAction(e -> {
-            this.parametersParser.setWidth((int) sliders[0].getValue());
-            this.parametersParser.setHeight((int) sliders[1].getValue());
-            this.parametersParser.setStartAnimalCount((int) sliders[2].getValue());
-            this.parametersParser.setStartPlantsCount((int) sliders[3].getValue());
-            this.parametersParser.setDailyEnergyLoss((int) sliders[4].getValue());
-            this.parametersParser.setEnergyRequiredToProcreate((int) sliders[5].getValue());
-            this.parametersParser.setEnergyLossForChild((int) sliders[6].getValue());
-            this.parametersParser.setStartEnergyForFactoryAnimals((int) sliders[7].getValue());
-            this.parametersParser.setDnaLength((int) sliders[8].getValue());
-            this.parametersParser.setPlantsEnergy((int) sliders[9].getValue());
-            this.parametersParser.setPlantsEachDayCount((int) sliders[10].getValue());
 
-            this.parseVariantChoices(choiceBoxes, variantChoices);
+            setParameters(sliders, choiceBoxes, variantChoices);
 
             this.manager = new VariableManager(parametersParser);
             this.map = new WorldMap(manager);
-
-            this.createScene();
-            Scene mapScene = new Scene(worldGridPane, 1000, 480);
+            this.drawScene();
+            VBox mapVBox = new VBox(worldGridPane);
+            Scene mapScene = new Scene(mapVBox, 1000, 700);
             primaryStage.setScene(mapScene);
             primaryStage.setResizable(false);
             primaryStage.setTitle("Animal Map");
@@ -91,8 +73,6 @@ public class App extends Application {
             simulation.start();
 
         });
-
-
     }
 
     private HBox createArgumentGetter(Slider[] sliders, ChoiceBox[] choiceBoxes, String[][] variantChoices, VBox vBoxCheckBoxes){
@@ -113,7 +93,6 @@ public class App extends Application {
             {4, 20, 7, 2}, // DNALength
             {10, 100, 10, 20}, // plantEnergy
             {5, 50, 5, 10} // plantsEachDay
-
         };
 
         String[] stringParameters = {
@@ -199,57 +178,6 @@ public class App extends Application {
         vBox.getChildren().add(variant);
     }
 
-    private void addAcceptButton(VBox vBox, Slider[] sliders, ChoiceBox[] choiceBoxes, String[][] variantChoices)
-    {
-        Button button = new Button("Accept parameters");
-        button.setOnAction(e -> {
-            this.parametersParser.setWidth((int) sliders[0].getValue());
-            this.parametersParser.setHeight((int) sliders[1].getValue());
-            this.parametersParser.setStartAnimalCount((int) sliders[2].getValue());
-            this.parametersParser.setStartPlantsCount((int) sliders[3].getValue());
-            this.parametersParser.setDailyEnergyLoss((int) sliders[4].getValue());
-            this.parametersParser.setEnergyRequiredToProcreate((int) sliders[5].getValue());
-            this.parametersParser.setEnergyLossForChild((int) sliders[6].getValue());
-            this.parametersParser.setStartEnergyForFactoryAnimals((int) sliders[7].getValue());
-            this.parametersParser.setDnaLength((int) sliders[8].getValue());
-            this.parametersParser.setPlantsEnergy((int) sliders[9].getValue());
-            this.parametersParser.setPlantsEachDayCount((int) sliders[10].getValue());
-
-            this.parseVariantChoices(choiceBoxes, variantChoices);
-
-            this.manager = new VariableManager(parametersParser);
-            this.map = new WorldMap(manager);
-            this.engine = new SimulationEngine(manager, map, this);
-            Thread simulation = new Thread(engine);
-            simulation.start();
-
-        });
-
-        vBox.getChildren().add(button);
-    }
-
-    public void nextDay() throws FileNotFoundException {
-        Platform.runLater(() -> {
-            this.worldGridPane.getChildren().clear();
-            this.worldGridPane.getColumnConstraints().clear();
-            this.worldGridPane.getRowConstraints().clear();
-            this.worldGridPane.setGridLinesVisible(false);
-
-            this.createScene();
-
-        });
-
-    }
-
-    private void createScene() {
-        this.createAndAddAxisLabels(worldGridPane);
-        this.createAndAddElements(worldGridPane, map, this);
-        this.setColRowSizes(worldGridPane);
-        this.worldGridPane.setPadding(new Insets(10, 10, 10, 10));
-        this.worldGridPane.setGridLinesVisible(true);
-
-    }
-
     private void parseVariantChoices(ChoiceBox[] choicesBox, String[][] variantChoices){
         this.parametersParser.setMapType(choicesBox[0].getValue() == variantChoices[0][0]);
         this.parametersParser.setGardenType(choicesBox[1].getValue() == variantChoices[1][0]);
@@ -257,149 +185,78 @@ public class App extends Application {
         this.parametersParser.setMutationType(choicesBox[3].getValue() == variantChoices[3][0]);
     }
 
-    public void makeMapStage(Stage welcomeStage) throws InterruptedException {
+    private void setParameters(Slider[] sliders, ChoiceBox[] choiceBoxes, String[][] variantChoices){
+        this.parametersParser.setWidth((int) sliders[0].getValue());
+        this.parametersParser.setHeight((int) sliders[1].getValue());
+        this.parametersParser.setStartAnimalCount((int) sliders[2].getValue());
+        this.parametersParser.setStartPlantsCount((int) sliders[3].getValue());
+        this.parametersParser.setDailyEnergyLoss((int) sliders[4].getValue());
+        this.parametersParser.setEnergyRequiredToProcreate((int) sliders[5].getValue());
+        this.parametersParser.setEnergyLossForChild((int) sliders[6].getValue());
+        this.parametersParser.setStartEnergyForFactoryAnimals((int) sliders[7].getValue());
+        this.parametersParser.setDnaLength((int) sliders[8].getValue());
+        this.parametersParser.setPlantsEnergy((int) sliders[9].getValue());
+        this.parametersParser.setPlantsEachDayCount((int) sliders[10].getValue());
 
-        synchronized (this) {
-            while (!parametersAccepted)
-                wait();
-        }
+        this.parseVariantChoices(choiceBoxes, variantChoices);
 
-        createMapsAndEngine();
-
-        // creating necessary gui elements for maps
-        Platform.runLater(() -> {
-            Stage mapStage = createGuiMaps(welcomeStage);
-
-            // hide previous window, show the new one
-            welcomeStage.hide();
-            mapStage.show();
-
-            // center window on screen
-            Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-            mapStage.setX((primScreenBounds.getWidth() - mapStage.getWidth()) / 2);
-            mapStage.setY((primScreenBounds.getHeight() - mapStage.getHeight()) / 2);
-        });
-
-        synchronized (this)
-        {
-            mapsAndEnginesCreated = true;
-            notifyAll();
-        }
-        
     }
 
-    public void createMapsAndEngine()
-    {
-        this.map = new WorldMap(manager);
-        this.engine = new SimulationEngine(manager, map, this);
-        this.CELL_WIDTH = GRID_SIZE/(double) (map.endMap.x()+1);
-        this.CELL_HEIGHT = GRID_SIZE/(double) (map.endMap.y()+1);
+    public void nextDay() {
+        Platform.runLater(this::setScene);
     }
 
-    public Stage createGuiMaps(Stage welcomeStage)
-    {
-        worldGridPane.setMaxHeight(GRID_SIZE);
-        worldGridPane.setMinHeight(GRID_SIZE);
-        worldGridPane.setMaxWidth(GRID_SIZE);
-        worldGridPane.setMinWidth(GRID_SIZE);
+    public void drawScene(){
+        int minX = map.startMap.x();
+        int minY = map.startMap.y();
+        int maxX = map.endMap.x();
+        int maxY = map.endMap.y();
+        this.width = GRID_SIZE/(double) (map.endMap.x());
+        this.height = GRID_SIZE/(double) (map.endMap.y());
 
-        // adding references to GridPanes to engines (to let them modify them)
-        this.engine.setGridPane(worldGridPane);
-        this.world = new HBox(worldGridPane);
+        Label labelyx = new Label("y \\ x");
+        worldGridPane.getColumnConstraints().add(new ColumnConstraints(width));
+        worldGridPane.getRowConstraints().add(new RowConstraints(height));
+        GridPane.setHalignment(labelyx, HPos.CENTER);
+        worldGridPane.add(labelyx, 0, 0);
 
-        VBox.setMargin(world, new Insets(10));
-        createAndAddAxisLabels(worldGridPane);
-        setColRowSizes(worldGridPane);
-        createAndAddElements(worldGridPane,map, this);
-        worldGridPane.setGridLinesVisible(true);
-
-        // creating new scene and stage
-        Scene scene = new Scene(world, 700, 700);
-        Stage mapStage = new Stage();
-        mapStage.setScene(scene);
-
-        return mapStage;
-    }
-
-    public void createAndAddAxisLabels(GridPane grid) {
-
-        for(int i = 0; i < map.endMap.y(); i++)
-        {
-            Label label = new Label(Integer.toString(map.endMap.y() - i));
+        for (int i = 1; i <= maxX - minX + 1; i++) {
+            Label label = new Label(Integer.toString(minX + i - 1));
+            worldGridPane.getColumnConstraints().add(new ColumnConstraints(width));
             GridPane.setHalignment(label, HPos.CENTER);
-            grid.add(label, 0, i + 1);
+            worldGridPane.add(label, i, 0);
         }
-        for(int i = 0; i < map.endMap.x(); i++)
-        {
-            Label label = new Label(Integer.toString(i + map.startMap.x()));
+
+        for (int i = 1; i <= maxY - minY + 1; i++) {
+            Label label = new Label(Integer.toString(maxY - i + 1));
+            worldGridPane.getRowConstraints().add(new RowConstraints(height));
             GridPane.setHalignment(label, HPos.CENTER);
-            grid.add(label, i + 1, 0);
-        }
-    }
-
-    private void setColRowSizes(GridPane grid)
-    {
-        //setting columns' sizes
-        for(int i = 0; i < map.endMap.x() + 1; i++)
-        {
-            ColumnConstraints column = new ColumnConstraints();
-            column.setMinWidth(CELL_WIDTH);
-            column.setMaxWidth(CELL_WIDTH);
-            grid.getColumnConstraints().add(column);
+            worldGridPane.add(label, 0, i);
         }
 
-        // setting rows' sizes
-        for(int i = 0; i < map.endMap.y() + 1; i++)
-        {
-            RowConstraints row = new RowConstraints();
-            row.setMaxHeight(CELL_HEIGHT);
-            row.setMinHeight(CELL_HEIGHT);
-            grid.getRowConstraints().add(row);
-        }
-    }
-
-    public void createAndAddElements(GridPane grid, WorldMap map, App app) {
-        // filling map
-        for(int i = 0; i < map.endMap.x(); i++) {
-            for (int j = 0; j < map.endMap.y(); j++) {
-                Vector2d position = new Vector2d(i, j);
-                Object obj = map.objectAt(position);
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                Vector2d position = new Vector2d(x, y);
                 if (map.isOccupied(position)) {
                     Object objectOnMap = map.objectAt(position);
                     GuiElementBox guiElementBox = new GuiElementBox((IMapElement) objectOnMap);
                     VBox vBox = guiElementBox.getVBox();
-                    grid.add(vBox, position.x() - map.startMap.x() + 1, map.endMap.y() - position.y() + 1);
+                    worldGridPane.add(vBox, position.x() - minX + 1, maxY - position.y() + 1);
                     GridPane.setHalignment(vBox, HPos.CENTER);
                 }
             }
         }
     }
 
-    private void startEngines() {
-        synchronized (this)
-        {
-            while (!mapsAndEnginesCreated) {
-                try {
-                    wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        Thread boundedThread = new Thread(() -> {
-            try {
-                while (true) {
-                    engine.run();
-                }
-            } catch(IllegalStateException e) {
-                System.out.println(e.getMessage());
-            }
+    public void setScene(){
+        Platform.runLater(() -> {
+            worldGridPane.getColumnConstraints().clear();
+            worldGridPane.getRowConstraints().clear();
+            worldGridPane.getChildren().clear();
+            worldGridPane.setGridLinesVisible(false);
+            worldGridPane.setGridLinesVisible(true);
+            drawScene();
         });
-
-        boundedThread.setDaemon(true);
-        boundedThread.start();
-
     }
 
 }

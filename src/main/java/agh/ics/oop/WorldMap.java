@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-public class WorldMap {
+public class WorldMap implements INextDayChange {
 
     public final VariableManager manager;
     public Vector2d startMap;
