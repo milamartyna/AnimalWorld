@@ -9,13 +9,12 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+
+import java.io.FileNotFoundException;
 
 
 public class App extends Application {
@@ -35,21 +34,6 @@ public class App extends Application {
     public void start(Stage primaryStage) throws InterruptedException {
         this.parametersParser = new ParametersParser();
         getParametersFromUser(primaryStage);
-        Thread mapCreationThread = new Thread(() -> {
-            try {
-                makeMapStage(primaryStage);
-            } catch (InterruptedException | IllegalStateException | IllegalArgumentException e ) {
-                System.out.println(e.getMessage());
-            }
-        });
-
-        Thread mapThread = new Thread(this::startEngines);
-
-        mapCreationThread.setDaemon(true);
-        mapThread.setDaemon(true);
-
-        mapCreationThread.start();
-        mapThread.start();
     }
 
     public void getParametersFromUser(Stage primaryStage)
@@ -75,11 +59,11 @@ public class App extends Application {
             {0, 100, 5, 20}, // amountOfAnimals
             {0, 100, 5, 20}, // amountOfPlants
             {1, 10, 3, 1}, // dailyEnergyLoss
-            {5, 50, 10, 10}, // energyRequiredToProcreate
-            {5, 50, 10, 10}, // energyLossForChildren
+            {5, 50, 30, 10}, // energyRequiredToProcreate
+            {5, 50, 30, 10}, // energyLossForChildren
             {10, 100, 20, 20}, // startEnergy
             {4, 20, 7, 2}, // DNALength
-            {10, 100, 20, 20}, // plantEnergy
+            {10, 100, 10, 20}, // plantEnergy
             {5, 50, 5, 10} // plantsEachDay
 
         };
@@ -195,16 +179,37 @@ public class App extends Application {
 
             this.manager = new VariableManager(parametersParser);
             this.map = new WorldMap(manager);
-
-            synchronized(this)
-            {
-                parametersAccepted = true;
-                notifyAll();
-            }
+            System.out.println("xxxx");
+            this.engine = new SimulationEngine(manager, map, this);
+            Thread simulation = new Thread(engine);
+            simulation.start();
 
         });
 
         vBox.getChildren().add(button);
+    }
+
+    public void nextDay() throws FileNotFoundException {
+        Platform.runLater(() -> {
+            this.worldGridPane.getChildren().clear();
+            this.worldGridPane.getColumnConstraints().clear();
+            this.worldGridPane.getRowConstraints().clear();
+            this.worldGridPane.setGridLinesVisible(false);
+            try {
+                this.createScene();
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+    }
+
+    private void createScene() throws FileNotFoundException {
+        this.createAndAddAxisLabels(worldGridPane);
+        this.createAndAddElements(worldGridPane, map, this);
+        this.setColRowSizes(worldGridPane);
+        this.worldGridPane.setPadding(new Insets(10, 10, 10, 10));
+        this.worldGridPane.setGridLinesVisible(true);
     }
 
     private void parseVariantChoices(ChoiceBox[] choicesBox, String[][] variantChoices){
@@ -248,7 +253,7 @@ public class App extends Application {
     public void createMapsAndEngine()
     {
         this.map = new WorldMap(manager);
-        this.engine = new SimulationEngine(manager, map);
+        this.engine = new SimulationEngine(manager, map, this);
         this.CELL_WIDTH = GRID_SIZE/(double) (map.endMap.x()+1);
         this.CELL_HEIGHT = GRID_SIZE/(double) (map.endMap.y()+1);
     }
@@ -266,6 +271,7 @@ public class App extends Application {
         VBox.setMargin(world, new Insets(10));
         createAndAddAxisLabels(worldGridPane);
         setColRowSizes(worldGridPane);
+        createAndAddElements(worldGridPane,map, this);
         worldGridPane.setGridLinesVisible(true);
 
         // creating new scene and stage
@@ -310,6 +316,23 @@ public class App extends Application {
             row.setMaxHeight(CELL_HEIGHT);
             row.setMinHeight(CELL_HEIGHT);
             grid.getRowConstraints().add(row);
+        }
+    }
+
+    public void createAndAddElements(GridPane grid, WorldMap map, App app) {
+        // filling map
+        for(int i = 0; i < map.endMap.x(); i++) {
+            for (int j = 0; j < map.endMap.y(); j++) {
+                Vector2d position = new Vector2d(i, j);
+                Object obj = map.objectAt(position);
+                if (map.isOccupied(position)) {
+                    Object objectOnMap = map.objectAt(position);
+                    GuiElementBox guiElementBox = new GuiElementBox((IMapElement) objectOnMap);
+                    VBox vBox = guiElementBox.getVBox();
+                    grid.add(vBox, position.x() - map.startMap.x() + 1, map.endMap.y() - position.y() + 1);
+                    GridPane.setHalignment(vBox, HPos.CENTER);
+                }
+            }
         }
     }
 
