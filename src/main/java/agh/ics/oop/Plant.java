@@ -19,6 +19,11 @@ public class Plant implements IMapElement{
 
     @Override
     public String getImage() {
-        return "*";
+        return "src/main/resources/grass.png";
+    }
+
+    @Override
+    public int getEnergy() {
+        return -1;
     }
 }

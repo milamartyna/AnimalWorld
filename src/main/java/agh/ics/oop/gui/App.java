@@ -12,9 +12,11 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import static java.lang.Math.min;
+
 
 public class App extends Application implements INextDayChange {
-    private double GRID_SIZE = 500.0;
+    private double GRID_SIZE = 400.0;
     private double width;
     private double height;
     private SimulationEngine engine;
@@ -22,9 +24,10 @@ public class App extends Application implements INextDayChange {
     private ParametersParser parametersParser;
     private VariableManager manager;
     private GridPane worldGridPane;
+    private double imageSize;
 
     @Override
-    public void start(Stage primaryStage) throws InterruptedException {
+    public void start(Stage primaryStage) {
         this.worldGridPane = new GridPane();
         this.parametersParser = new ParametersParser();
         getParametersFromUser(primaryStage);
@@ -60,9 +63,9 @@ public class App extends Application implements INextDayChange {
 
             this.manager = new VariableManager(parametersParser);
             this.map = new WorldMap(manager);
-            this.drawScene();
+            this.drawScene(manager.energyRequiredToProcreate);
             VBox mapVBox = new VBox(worldGridPane);
-            Scene mapScene = new Scene(mapVBox, 1000, 700);
+            Scene mapScene = new Scene(mapVBox, 600, 600);
             primaryStage.setScene(mapScene);
             primaryStage.setResizable(false);
             primaryStage.setTitle("Animal Map");
@@ -206,7 +209,7 @@ public class App extends Application implements INextDayChange {
         Platform.runLater(this::setScene);
     }
 
-    public void drawScene(){
+    public void drawScene(int energyRequiredToProcreate){
         int minX = map.startMap.x();
         int minY = map.startMap.y();
         int maxX = map.endMap.x();
@@ -238,8 +241,9 @@ public class App extends Application implements INextDayChange {
             for (int y = minY; y <= maxY; y++) {
                 Vector2d position = new Vector2d(x, y);
                 if (map.isOccupied(position)) {
+                    imageSize = min(height, width);
                     Object objectOnMap = map.objectAt(position);
-                    GuiElementBox guiElementBox = new GuiElementBox((IMapElement) objectOnMap);
+                    GuiElementBox guiElementBox = new GuiElementBox((IMapElement) objectOnMap, imageSize, energyRequiredToProcreate);
                     VBox vBox = guiElementBox.getVBox();
                     worldGridPane.add(vBox, position.x() - minX + 1, maxY - position.y() + 1);
                     GridPane.setHalignment(vBox, HPos.CENTER);
@@ -255,7 +259,7 @@ public class App extends Application implements INextDayChange {
             worldGridPane.getChildren().clear();
             worldGridPane.setGridLinesVisible(false);
             worldGridPane.setGridLinesVisible(true);
-            drawScene();
+            drawScene(manager.energyRequiredToProcreate);
         });
     }
 

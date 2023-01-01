@@ -164,11 +164,20 @@ public class Animal implements IMapElement{
 
     @Override
     public String toString(){
-        return "A ";
+        return "A";
     }
 
     @Override
     public String getImage() {
-        return "A";
+        return switch (this.direction) {
+            case ZERO -> "src/main/resources/zero.png";
+            case ONE -> "src/main/resources/one.png";
+            case TWO -> "src/main/resources/two.png";
+            case THREE -> "src/main/resources/three.png";
+            case FOUR -> "src/main/resources/four.png";
+            case FIVE -> "src/main/resources/five.png";
+            case SIX -> "src/main/resources/six.png";
+            case SEVEN -> "src/main/resources/seven.png";
+        };
     }
 }
