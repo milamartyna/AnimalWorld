@@ -63,18 +63,24 @@ public class App extends Application implements INextDayChange {
 
             this.manager = new VariableManager(parametersParser);
             this.map = new WorldMap(manager);
+            this.engine = new SimulationEngine(manager, map, this);
+
             this.drawScene(manager.energyRequiredToProcreate);
+            HBox mapWithStats = new HBox();
+            VBox statsVBox = new VBox();
             VBox mapVBox = new VBox(worldGridPane);
-            Scene mapScene = new Scene(mapVBox, 600, 600);
+            this.drawBeginStage(statsVBox);
+            mapWithStats.getChildren().addAll(mapVBox, statsVBox);
+
+            Scene mapScene = new Scene(mapWithStats, 600, 600);
             primaryStage.setScene(mapScene);
             primaryStage.setResizable(false);
             primaryStage.setTitle("Animal Map");
             primaryStage.show();
 
-            this.engine = new SimulationEngine(manager, map, this);
             Thread simulation = new Thread(engine);
+            simulation.setDaemon(true); // this will make the app close when we exit the window
             simulation.start();
-
         });
     }
 
@@ -261,6 +267,23 @@ public class App extends Application implements INextDayChange {
             worldGridPane.setGridLinesVisible(true);
             drawScene(manager.energyRequiredToProcreate);
         });
+    }
+
+    private void drawBeginStage(VBox statsVBox){
+        worldGridPane.setGridLinesVisible(true);
+        Button startResumeButton = new Button("START");
+
+        startResumeButton.setOnAction(event -> {
+            if (this.engine.isPaused()){
+                this.engine.resumeEngine();
+                startResumeButton.setText("PAUSE");
+            }else {
+                this.engine.pauseEngine();
+                startResumeButton.setText("RESUME");
+            }
+        });
+        statsVBox.getChildren().add(startResumeButton);
+
     }
 
 }
