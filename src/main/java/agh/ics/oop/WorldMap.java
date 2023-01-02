@@ -15,24 +15,29 @@ public class WorldMap implements INextDayChange {
     private final HashMap<Vector2d, ArrayList<Animal>> animalsOnPositions;
     private final HashMap<Vector2d, Plant> plants = new HashMap<>();
     private final ArrayList<Vector2d> mapAsPositions;
+    private final IMapObserver observer;
     private final MapVisualiser mapVisualiser;
 
     public WorldMap(VariableManager manager){
         this.mapVisualiser = new MapVisualiser(this);
+        this.manager = manager;
+        this.observer = new StatisticsManager();
         this.startMap = new Vector2d(0, 0);
         this.endMap = new Vector2d(manager.getWidth() - 1, manager.getHeight() - 1);
-        this.manager = manager;
         this.mapAsPositions = this.setMapAsPositions();
         this.animalsOnPositions = this.setAnimalsOnPositions();
         this.setPlacesOfDeath();
         manager.getGardenType().seedPlants(this, manager.startPlantsCount);
         this.setUpMap();
+        this.observer.factoryMadeAnimal(this.manager.startAnimalCount);
+        this.updateStatistics();
     }
 
     public void placeAnimal(Animal animal){
         this.animals.add(animal);
         ArrayList<Animal> animalsOnTheSamePosition = animalsOnPositions.get(animal.getPosition());
         animalsOnTheSamePosition.add(animal);
+        this.observer.animalBirth(animal);
     }
 
     public void nextDay(){
@@ -41,6 +46,7 @@ public class WorldMap implements INextDayChange {
         this.animalsEat();
         this.animalsProcreate();
         manager.getGardenType().seedPlants(this, manager.plantsEachDayCount);
+        this.updateStatistics();
 
         // for testing
 //        System.out.println("Animals after the NEXT DAY");
@@ -72,12 +78,14 @@ public class WorldMap implements INextDayChange {
 
     private void animalsEat(){
         for(Vector2d mapPosition : this.mapAsPositions){
-            ArrayList<Animal> animalsOnTheSamePosition = this.animalsOnPositions.get(mapPosition);
-            if(animalsOnTheSamePosition.size() >= 1){
-                Animal bestAnimal = this.bestAnimalWins(animalsOnTheSamePosition);
-                bestAnimal.eatsPlant(this.manager.plantsEnergy);
-                this.plantIsEaten(mapPosition);
-                this.manager.getGardenType().plantIsEaten(this, mapPosition);
+            if(plants.containsKey(mapPosition)) {
+                ArrayList<Animal> animalsOnTheSamePosition = this.animalsOnPositions.get(mapPosition);
+                if (animalsOnTheSamePosition.size() >= 1) {
+                    Animal bestAnimal = this.bestAnimalWins(animalsOnTheSamePosition);
+                    bestAnimal.eatsPlant(this.manager.plantsEnergy);
+                    this.plantIsEaten(mapPosition);
+                    this.manager.getGardenType().plantIsEaten(this, mapPosition);
+                }
             }
         }
     }
@@ -121,6 +129,7 @@ public class WorldMap implements INextDayChange {
                 placesOfDeath.remove(position);
                 placesOfDeath.put(position, value + 1);
                 deadAnimals.add(animal);
+                this.observer.animalDeath(animal);
             }
         }
         animals.removeAll(deadAnimals);
@@ -128,12 +137,14 @@ public class WorldMap implements INextDayChange {
 
     public void addPlant(Vector2d position){
         plants.put(position, new Plant(position));
+        this.observer.plantCountUpdate(true);
     }
 
     // I think the eating of the plants will be handled by the map so there's no need for this method
     // to be called in the green equator
     public void plantIsEaten(Vector2d position){
         plants.remove(position);
+        this.observer.plantCountUpdate(false);
     }
 
     public Object objectAt(Vector2d position) {
@@ -259,6 +270,33 @@ public class WorldMap implements INextDayChange {
 
     public HashMap<Vector2d, Integer> getPlacesOfDeath(){
         return this.placesOfDeath;
+    }
+
+    public IMapObserver getMapObserver(){
+        return this.observer;
+    }
+
+    private void updateStatistics(){
+        this.sumEnergyLevels();
+        this.freeSpotsUpdate();
+        this.observer.newDay();
+    }
+
+    private void sumEnergyLevels(){
+        int sum = 0;
+        for(Animal animal : this.animals){
+            sum += animal.getEnergy();
+        }
+        this.observer.energyLevelsUpdate(sum);
+    }
+
+    private void freeSpotsUpdate(){
+        int freeSpots = 0;
+        for (Vector2d mapPosition : this.mapAsPositions){
+            if(!this.isOccupied(mapPosition)) freeSpots += 1;
+        }
+        this.getMapObserver().freeSpotsUpdate(freeSpots);
+
     }
 
 }

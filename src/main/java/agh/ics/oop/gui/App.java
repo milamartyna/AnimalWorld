@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import java.util.Arrays;
 
 import static java.lang.Math.min;
 
@@ -24,6 +25,8 @@ public class App extends Application implements INextDayChange {
     private ParametersParser parametersParser;
     private VariableManager manager;
     private GridPane worldGridPane;
+    private IMapObserver mapObserver;
+    private VBox statsVBox;
     private double imageSize;
 
     @Override
@@ -64,15 +67,19 @@ public class App extends Application implements INextDayChange {
             this.manager = new VariableManager(parametersParser);
             this.map = new WorldMap(manager);
             this.engine = new SimulationEngine(manager, map, this);
+            this.mapObserver = map.getMapObserver();
 
-            this.drawScene(manager.energyRequiredToProcreate);
             HBox mapWithStats = new HBox();
-            VBox statsVBox = new VBox();
+            VBox buttonStatsVBox = new VBox();
+            this.statsVBox = new VBox();
             VBox mapVBox = new VBox(worldGridPane);
-            this.drawBeginStage(statsVBox);
-            mapWithStats.getChildren().addAll(mapVBox, statsVBox);
+            this.drawScene(manager.energyRequiredToProcreate);
+            this.drawBeginStage(buttonStatsVBox);
+            mapWithStats.getChildren().addAll(mapVBox, buttonStatsVBox);
+            mapWithStats.setAlignment(Pos.CENTER);
+            mapWithStats.setSpacing(20);
 
-            Scene mapScene = new Scene(mapWithStats, 600, 600);
+            Scene mapScene = new Scene(mapWithStats, 800, 600);
             primaryStage.setScene(mapScene);
             primaryStage.setResizable(false);
             primaryStage.setTitle("Animal Map");
@@ -142,7 +149,6 @@ public class App extends Application implements INextDayChange {
         }
         hBox.getChildren().addAll(vBoxLeft, vBoxRight);
 
-//        this.addAcceptButton(vBoxCheckBoxes, sliders, choiceBoxes, variantChoices);
         return hBox;
     }
 
@@ -216,6 +222,8 @@ public class App extends Application implements INextDayChange {
     }
 
     public void drawScene(int energyRequiredToProcreate){
+        this.updateStats();
+
         int minX = map.startMap.x();
         int minY = map.startMap.y();
         int maxX = map.endMap.x();
@@ -269,8 +277,11 @@ public class App extends Application implements INextDayChange {
         });
     }
 
-    private void drawBeginStage(VBox statsVBox){
+    private void drawBeginStage(VBox buttonStatsVBox){
         worldGridPane.setGridLinesVisible(true);
+        this.statsVBox.setAlignment(Pos.CENTER);
+        this.statsVBox.setSpacing(5);
+        this.statsVBox.setAlignment(Pos.CENTER);
         Button startResumeButton = new Button("START");
 
         startResumeButton.setOnAction(event -> {
@@ -282,8 +293,27 @@ public class App extends Application implements INextDayChange {
                 startResumeButton.setText("RESUME");
             }
         });
-        statsVBox.getChildren().add(startResumeButton);
+        this.updateStats();
+        buttonStatsVBox.getChildren().addAll(startResumeButton, statsVBox);
 
+    }
+
+    private void updateStats(){
+        this.statsVBox.getChildren().clear();
+        Label[] stats = new Label[8];
+
+        stats[0] = new Label("Day: " + this.mapObserver.getDay());
+        stats[1] = new Label("Animals On The Map: " + this.mapObserver.getAnimalCount());
+        stats[2] = new Label("Plants On The Map: " + this.mapObserver.getPlantsCount());
+        stats[3] = new Label("Free Spots On The Map: " + this.mapObserver.getFreeSpotsCount());
+        stats[4] = new Label("Most Popular DNA: " + Arrays.toString(this.mapObserver.getMostPopularDNA()));
+        stats[5] = new Label("Average Energy Level: " + String.format("%.2f", this.mapObserver.getAverageEnergyLevel()));
+        stats[6] = new Label("Average Lifespan: " + String.format("%.2f", this.mapObserver.getAverageLifespan()));
+        stats[7] = new Label("Average Children Per Animal: " + String.format("%.2f",this.mapObserver.getAverageChildrenCount()));
+
+        for(int i = 0; i < 8; i++) {
+            statsVBox.getChildren().add(stats[i]);
+        }
     }
 
 }
