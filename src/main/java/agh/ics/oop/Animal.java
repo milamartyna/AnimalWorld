@@ -13,6 +13,7 @@ public class Animal implements IMapElement{
     private Vector2d position;
     private GeneDirection direction;
     private int activeGene; // this is the index of the dna the animal will be using the next day
+    private int eatenPlants;
     private static final Random random = new Random();
 
     // constructor for newborn Animals
@@ -27,6 +28,7 @@ public class Animal implements IMapElement{
         this.activeGene = random.nextInt(map.manager.dnaLength);
         this.direction = GeneDirection.generateGeneDirection();
         this.map.placeAnimal(this);
+        this.eatenPlants = 0; // how much plant did animal eat
     }
 
     // constructor for factory made Animals
@@ -40,6 +42,7 @@ public class Animal implements IMapElement{
         this.activeGene = 0; // not sure
         this.direction = GeneDirection.generateGeneDirection();
         this.map.placeAnimal(this); // important to place the animal after setting all the parameters
+        this.eatenPlants = 0;
     }
 
     private GeneDirection[] generateDna(){
@@ -111,6 +114,7 @@ public class Animal implements IMapElement{
 
     public void eatsPlant(int plantsEnergy){
         this.energy = this.energy + plantsEnergy;
+        this.eatenPlants = this.eatenPlants + 1;
     }
 
     public boolean isDead(){
@@ -164,6 +168,10 @@ public class Animal implements IMapElement{
 
     public int getActiveGene() {
         return this.activeGene;
+    }
+
+    public int getEatenPlants() {
+        return this.eatenPlants;
     }
 
     @Override

@@ -257,7 +257,7 @@ public class App extends Application {
                 if (map.isOccupied(position)) {
                     imageSize = min(height, width);
                     Object objectOnMap = map.objectAt(position);
-                    GuiElementBox guiElementBox = new GuiElementBox((IMapElement) objectOnMap, imageSize, energyRequiredToProcreate);
+                    GuiElementBox guiElementBox = new GuiElementBox((IMapElement) objectOnMap, imageSize, energyRequiredToProcreate, objectOnMap, engine);
                     VBox vBox = guiElementBox.getVBox();
                     if (objectOnMap.getClass().equals(Animal.class)) {
                         engine.addAnimalButton(vBox, (Animal) objectOnMap);
