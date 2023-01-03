@@ -162,6 +162,10 @@ public class Animal implements IMapElement{
         return this.age;
     }
 
+    public int getActiveGene() {
+        return this.activeGene;
+    }
+
     @Override
     public String toString(){
         return "A";

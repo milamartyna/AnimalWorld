@@ -16,7 +16,7 @@ import java.util.Arrays;
 import static java.lang.Math.min;
 
 
-public class App extends Application implements INextDayChange {
+public class App extends Application {
     private double GRID_SIZE = 400.0;
     private double width;
     private double height;
@@ -75,6 +75,7 @@ public class App extends Application implements INextDayChange {
             VBox mapVBox = new VBox(worldGridPane);
             this.drawScene(manager.energyRequiredToProcreate);
             this.drawBeginStage(buttonStatsVBox);
+            this.addAnimalInfoButton(buttonStatsVBox);
             mapWithStats.getChildren().addAll(mapVBox, buttonStatsVBox);
             mapWithStats.setAlignment(Pos.CENTER);
             mapWithStats.setSpacing(20);
@@ -221,15 +222,15 @@ public class App extends Application implements INextDayChange {
         Platform.runLater(this::setScene);
     }
 
-    public void drawScene(int energyRequiredToProcreate){
+    public void drawScene(int energyRequiredToProcreate) {
         this.updateStats();
-
+        engine.clearAnimalButtons();
         int minX = map.startMap.x();
         int minY = map.startMap.y();
         int maxX = map.endMap.x();
         int maxY = map.endMap.y();
-        this.width = GRID_SIZE/(double) (map.endMap.x());
-        this.height = GRID_SIZE/(double) (map.endMap.y());
+        this.width = GRID_SIZE / (double) (map.endMap.x());
+        this.height = GRID_SIZE / (double) (map.endMap.y());
 
         Label labelyx = new Label("y \\ x");
         worldGridPane.getColumnConstraints().add(new ColumnConstraints(width));
@@ -250,7 +251,6 @@ public class App extends Application implements INextDayChange {
             GridPane.setHalignment(label, HPos.CENTER);
             worldGridPane.add(label, 0, i);
         }
-
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 Vector2d position = new Vector2d(x, y);
@@ -259,6 +259,9 @@ public class App extends Application implements INextDayChange {
                     Object objectOnMap = map.objectAt(position);
                     GuiElementBox guiElementBox = new GuiElementBox((IMapElement) objectOnMap, imageSize, energyRequiredToProcreate);
                     VBox vBox = guiElementBox.getVBox();
+                    if (objectOnMap.getClass().equals(Animal.class)) {
+                        engine.addAnimalButton(vBox, (Animal) objectOnMap);
+                    }
                     worldGridPane.add(vBox, position.x() - minX + 1, maxY - position.y() + 1);
                     GridPane.setHalignment(vBox, HPos.CENTER);
                 }
@@ -295,7 +298,6 @@ public class App extends Application implements INextDayChange {
         });
         this.updateStats();
         buttonStatsVBox.getChildren().addAll(startResumeButton, statsVBox);
-
     }
 
     private void updateStats(){
@@ -314,6 +316,17 @@ public class App extends Application implements INextDayChange {
         for(int i = 0; i < 8; i++) {
             statsVBox.getChildren().add(stats[i]);
         }
+    }
+
+    private void addAnimalInfoButton(VBox vBox) {
+        Button button = new Button("Dominant");
+        button.setOnAction(event -> {
+            if (this.engine.isPaused()){
+                this.engine.highlightDominantGenotypeAnimals(this.mapObserver.getMostPopularDNA());
+            }
+        });
+        vBox.setSpacing(5);
+        vBox.getChildren().add(button);
     }
 
 }
