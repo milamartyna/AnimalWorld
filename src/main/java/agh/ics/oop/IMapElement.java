@@ -1,8 +1,10 @@
 package agh.ics.oop;
 
+import javafx.scene.image.Image;
+
 public interface IMapElement {
     Vector2d getPosition();
     String toString();
-    String getImage();
+    Image getImage();
     int getEnergy();
 }

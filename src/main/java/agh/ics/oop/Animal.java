@@ -1,6 +1,12 @@
 package agh.ics.oop;
 
+import javafx.scene.image.Image;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class Animal implements IMapElement{
@@ -16,7 +22,8 @@ public class Animal implements IMapElement{
     private int eatenPlants;
     private static final Random random = new Random();
 
-    // constructor for newborn Animals
+    private static final Map<GeneDirection, Image> images = setImageHashMap();
+
     public Animal(GeneDirection[] dna, Vector2d position, WorldMap map){
         this.map = map;
         // because after procreation the map animal energy sum should remain the same
@@ -180,16 +187,33 @@ public class Animal implements IMapElement{
     }
 
     @Override
-    public String getImage() {
+    public Image getImage() {
         return switch (this.direction) {
-            case ZERO -> "src/main/resources/zero.png";
-            case ONE -> "src/main/resources/one.png";
-            case TWO -> "src/main/resources/two.png";
-            case THREE -> "src/main/resources/three.png";
-            case FOUR -> "src/main/resources/four.png";
-            case FIVE -> "src/main/resources/five.png";
-            case SIX -> "src/main/resources/six.png";
-            case SEVEN -> "src/main/resources/seven.png";
+            case ZERO -> images.get(GeneDirection.ZERO);
+            case ONE -> images.get(GeneDirection.ONE);
+            case TWO -> images.get(GeneDirection.TWO);
+            case THREE -> images.get(GeneDirection.THREE);
+            case FOUR -> images.get(GeneDirection.FOUR);
+            case FIVE -> images.get(GeneDirection.FIVE);
+            case SIX -> images.get(GeneDirection.SIX);
+            case SEVEN -> images.get(GeneDirection.SEVEN);
         };
+    }
+
+    private static HashMap<GeneDirection, Image> setImageHashMap(){
+        return new HashMap<>(){{
+            try {
+                put(GeneDirection.ZERO, new Image(new FileInputStream("src/main/resources/zero.png")));
+                put(GeneDirection.ONE, new Image(new FileInputStream("src/main/resources/one.png")));
+                put(GeneDirection.TWO, new Image(new FileInputStream("src/main/resources/two.png")));
+                put(GeneDirection.THREE, new Image(new FileInputStream("src/main/resources/three.png")));
+                put(GeneDirection.FOUR, new Image(new FileInputStream("src/main/resources/four.png")));
+                put(GeneDirection.FIVE, new Image(new FileInputStream("src/main/resources/five.png")));
+                put(GeneDirection.SIX, new Image(new FileInputStream("src/main/resources/six.png")));
+                put(GeneDirection.SEVEN, new Image(new FileInputStream("src/main/resources/seven.png")));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }};
     }
 }

@@ -1,6 +1,21 @@
 package agh.ics.oop;
 
+import javafx.scene.image.Image;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 public class Plant implements IMapElement{
+
+    private static final Image image;
+
+    static {
+        try {
+            image = new Image(new FileInputStream("src/main/resources/grass.png"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private final Vector2d position;
 
@@ -18,8 +33,8 @@ public class Plant implements IMapElement{
     }
 
     @Override
-    public String getImage() {
-        return "src/main/resources/grass.png";
+    public Image getImage() {
+        return image;
     }
 
     @Override

@@ -8,9 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SimulationEngine implements Runnable, IEngine{
-    private int MOVE_DELAY = 150;
-    private VariableManager manager;
-    private WorldMap map;
+    private static final int MOVE_DELAY = 300;
+    private final VariableManager manager;
+    private final WorldMap map;
     private final App app;
     private boolean isPaused;
     private final List<VBox> animalButtonsList = new ArrayList<>();
