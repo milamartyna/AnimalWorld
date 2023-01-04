@@ -1,6 +1,7 @@
 package agh.ics.oop.gui;
 
 import agh.ics.oop.Animal;
+import agh.ics.oop.IEngine;
 import agh.ics.oop.IMapElement;
 import agh.ics.oop.SimulationEngine;
 import javafx.geometry.Insets;
@@ -28,7 +29,7 @@ public class GuiElementBox {
     private ProgressBar progressBar;
     private double energyProgress;
 
-    public GuiElementBox(IMapElement element, double size, int totalEnergy, Object animal, SimulationEngine engine){
+    public GuiElementBox(IMapElement element, double size, int totalEnergy, Object animal, IEngine engine){
 
         image = element.getImage();
         this.imageView = new ImageView(image);
@@ -54,7 +55,7 @@ public class GuiElementBox {
         return this.box;
     }
 
-    private static void setButtonOnAction(Button button, Animal animal, SimulationEngine engine) {
+    private static void setButtonOnAction(Button button, Animal animal, IEngine engine) {
 
         button.setOnAction(event -> {
             if (engine.isPaused()) {

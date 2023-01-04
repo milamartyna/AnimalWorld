@@ -1,20 +1,12 @@
 package agh.ics.oop;
 
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-public interface IEngine {
+public interface IEngine extends Runnable{
 
     void run();
-
-    void addAnimalButton(VBox vBox, Animal animal);
-
-    void clearAnimalButtons();
-
-    void highlightDominantGenotypeAnimals(GeneDirection[] genotype);
-
+    HBox startSimulation();
     boolean isPaused();
-    void pauseEngine();
-
-    void resumeEngine();
 
 }

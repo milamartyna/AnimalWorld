@@ -2,36 +2,19 @@ package agh.ics.oop.gui;
 
 import agh.ics.oop.*;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import java.util.Arrays;
-
-import static java.lang.Math.min;
-
 
 public class App extends Application {
-    private double GRID_SIZE = 400.0;
-    private double width;
-    private double height;
-    private SimulationEngine engine;
-    private WorldMap map;
     private ParametersParser parametersParser;
-    private VariableManager manager;
-    private GridPane worldGridPane;
-    private IMapObserver mapObserver;
-    private VBox statsVBox;
-    private double imageSize;
 
     @Override
     public void start(Stage primaryStage) {
-        this.worldGridPane = new GridPane();
         this.parametersParser = new ParametersParser();
         getParametersFromUser(primaryStage);
     }
@@ -63,28 +46,18 @@ public class App extends Application {
         acceptButton.setOnAction(e -> {
 
             setParameters(sliders, choiceBoxes, variantChoices);
+            VariableManager manager = new VariableManager(parametersParser);
+            WorldMap map = new WorldMap(manager);
+            IEngine engine = new SimulationEngine(manager, map, this);
 
-            this.manager = new VariableManager(parametersParser);
-            this.map = new WorldMap(manager);
-            this.engine = new SimulationEngine(manager, map, this);
-            this.mapObserver = map.getMapObserver();
-
-            HBox mapWithStats = new HBox();
-            VBox buttonStatsVBox = new VBox();
-            this.statsVBox = new VBox();
-            VBox mapVBox = new VBox(worldGridPane);
-            this.drawScene(manager.energyRequiredToProcreate);
-            this.drawBeginStage(buttonStatsVBox);
-            this.addAnimalInfoButton(buttonStatsVBox);
-            mapWithStats.getChildren().addAll(mapVBox, buttonStatsVBox);
-            mapWithStats.setAlignment(Pos.CENTER);
-            mapWithStats.setSpacing(20);
+            Stage worldSimulation = new Stage();
+            HBox mapWithStats = engine.startSimulation();
 
             Scene mapScene = new Scene(mapWithStats, 800, 600);
-            primaryStage.setScene(mapScene);
-            primaryStage.setResizable(false);
-            primaryStage.setTitle("Animal Map");
-            primaryStage.show();
+            worldSimulation.setScene(mapScene);
+            worldSimulation.setResizable(false);
+            worldSimulation.setTitle("Animal Map");
+            worldSimulation.show();
 
             Thread simulation = new Thread(engine);
             simulation.setDaemon(true); // this will make the app close when we exit the window
@@ -216,117 +189,6 @@ public class App extends Application {
 
         this.parseVariantChoices(choiceBoxes, variantChoices);
 
-    }
-
-    public void nextDay() {
-        Platform.runLater(this::setScene);
-    }
-
-    public void drawScene(int energyRequiredToProcreate) {
-        this.updateStats();
-        engine.clearAnimalButtons();
-        int minX = map.startMap.x();
-        int minY = map.startMap.y();
-        int maxX = map.endMap.x();
-        int maxY = map.endMap.y();
-        this.width = GRID_SIZE / (double) (map.endMap.x());
-        this.height = GRID_SIZE / (double) (map.endMap.y());
-
-        Label labelyx = new Label("y \\ x");
-        worldGridPane.getColumnConstraints().add(new ColumnConstraints(width));
-        worldGridPane.getRowConstraints().add(new RowConstraints(height));
-        GridPane.setHalignment(labelyx, HPos.CENTER);
-        worldGridPane.add(labelyx, 0, 0);
-
-        for (int i = 1; i <= maxX - minX + 1; i++) {
-            Label label = new Label(Integer.toString(minX + i - 1));
-            worldGridPane.getColumnConstraints().add(new ColumnConstraints(width));
-            GridPane.setHalignment(label, HPos.CENTER);
-            worldGridPane.add(label, i, 0);
-        }
-
-        for (int i = 1; i <= maxY - minY + 1; i++) {
-            Label label = new Label(Integer.toString(maxY - i + 1));
-            worldGridPane.getRowConstraints().add(new RowConstraints(height));
-            GridPane.setHalignment(label, HPos.CENTER);
-            worldGridPane.add(label, 0, i);
-        }
-        for (int x = minX; x <= maxX; x++) {
-            for (int y = minY; y <= maxY; y++) {
-                Vector2d position = new Vector2d(x, y);
-                if (map.isOccupied(position)) {
-                    imageSize = min(height, width);
-                    Object objectOnMap = map.objectAt(position);
-                    GuiElementBox guiElementBox = new GuiElementBox((IMapElement) objectOnMap, imageSize, energyRequiredToProcreate, objectOnMap, engine);
-                    VBox vBox = guiElementBox.getVBox();
-                    if (objectOnMap.getClass().equals(Animal.class)) {
-                        engine.addAnimalButton(vBox, (Animal) objectOnMap);
-                    }
-                    worldGridPane.add(vBox, position.x() - minX + 1, maxY - position.y() + 1);
-                    GridPane.setHalignment(vBox, HPos.CENTER);
-                }
-            }
-        }
-    }
-
-    public void setScene(){
-        Platform.runLater(() -> {
-            worldGridPane.getColumnConstraints().clear();
-            worldGridPane.getRowConstraints().clear();
-            worldGridPane.getChildren().clear();
-            worldGridPane.setGridLinesVisible(false);
-            worldGridPane.setGridLinesVisible(true);
-            drawScene(manager.energyRequiredToProcreate);
-        });
-    }
-
-    private void drawBeginStage(VBox buttonStatsVBox){
-        worldGridPane.setGridLinesVisible(true);
-        this.statsVBox.setAlignment(Pos.CENTER);
-        this.statsVBox.setSpacing(5);
-        this.statsVBox.setAlignment(Pos.CENTER);
-        Button startResumeButton = new Button("START");
-
-        startResumeButton.setOnAction(event -> {
-            if (this.engine.isPaused()){
-                this.engine.resumeEngine();
-                startResumeButton.setText("PAUSE");
-            }else {
-                this.engine.pauseEngine();
-                startResumeButton.setText("RESUME");
-            }
-        });
-        this.updateStats();
-        buttonStatsVBox.getChildren().addAll(startResumeButton, statsVBox);
-    }
-
-    private void updateStats(){
-        this.statsVBox.getChildren().clear();
-        Label[] stats = new Label[8];
-
-        stats[0] = new Label("Day: " + this.mapObserver.getDay());
-        stats[1] = new Label("Animals On The Map: " + this.mapObserver.getAnimalCount());
-        stats[2] = new Label("Plants On The Map: " + this.mapObserver.getPlantsCount());
-        stats[3] = new Label("Free Spots On The Map: " + this.mapObserver.getFreeSpotsCount());
-        stats[4] = new Label("Most Popular DNA: " + Arrays.toString(this.mapObserver.getMostPopularDNA()));
-        stats[5] = new Label("Average Energy Level: " + String.format("%.2f", this.mapObserver.getAverageEnergyLevel()));
-        stats[6] = new Label("Average Lifespan: " + String.format("%.2f", this.mapObserver.getAverageLifespan()));
-        stats[7] = new Label("Average Children Per Animal: " + String.format("%.2f",this.mapObserver.getAverageChildrenCount()));
-
-        for(int i = 0; i < 8; i++) {
-            statsVBox.getChildren().add(stats[i]);
-        }
-    }
-
-    private void addAnimalInfoButton(VBox vBox) {
-        Button button = new Button("Dominant");
-        button.setOnAction(event -> {
-            if (this.engine.isPaused()){
-                this.engine.highlightDominantGenotypeAnimals(this.mapObserver.getMostPopularDNA());
-            }
-        });
-        vBox.setSpacing(5);
-        vBox.getChildren().add(button);
     }
 
 }
