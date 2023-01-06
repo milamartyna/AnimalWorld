@@ -12,7 +12,7 @@ public class StatisticsManager implements IMapObserver {
     private int sumEnergy;
     private int sumDeadAnimalsLifespan;
     private int sumChildrenOfAliveAnimals;
-    private HashMap<GeneDirection[], Integer> animalsDNA;
+    private final HashMap<GeneDirection[], Integer> animalsDNA;
     private GeneDirection[] mostPopularDNA;
 
     public StatisticsManager(){

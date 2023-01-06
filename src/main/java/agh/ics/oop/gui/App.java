@@ -7,6 +7,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import org.controlsfx.control.RangeSlider;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.io.IOException;
@@ -14,6 +15,10 @@ import java.io.IOException;
 public class App extends Application {
     private ParametersParser parametersParser;
     private int simulationCount = 0;
+    private Slider[] sliders;
+    private RangeSlider mutationCountRange;
+    private ChoiceBox[] choiceBoxes;
+    private CheckBox saveStatsCheckBox;
 
     @Override
     public void start(Stage primaryStage) {
@@ -26,9 +31,10 @@ public class App extends Application {
         Button acceptButton = new Button("Accept Button");
 
         VBox vBoxCheckBoxes = new VBox();
-        Slider[] sliders = new Slider[11];
-        ChoiceBox[] choiceBoxes = new ChoiceBox[4];
-        CheckBox saveStatsCheckBox = new CheckBox("Save Daily Statistics");
+        sliders = new Slider[11];
+        mutationCountRange = new RangeSlider(0, 20, 3, 7);
+        choiceBoxes = new ChoiceBox[4];
+        saveStatsCheckBox = new CheckBox("Save Daily Statistics");
         String[][] variantChoices = {
                 {"Globe", "Hell Gate", "Map Type"},
                 {"Green Equator", "Toxic Fields", "Garden Type"},
@@ -36,7 +42,7 @@ public class App extends Application {
                 {"Total Randomness", "Slight Correction", "Mutation Type"}
         };
 
-        HBox configPanel = this.createArgumentGetter(sliders, choiceBoxes, variantChoices, vBoxCheckBoxes);
+        HBox configPanel = this.createArgumentGetter(variantChoices, vBoxCheckBoxes);
         vBoxCheckBoxes.getChildren().addAll(saveStatsCheckBox, acceptButton);
         configPanel.getChildren().add(vBoxCheckBoxes);
 
@@ -48,7 +54,7 @@ public class App extends Application {
 
         acceptButton.setOnAction(e -> {
 
-            setParameters(sliders, choiceBoxes, variantChoices);
+            setParameters(variantChoices);
             VariableManager manager = new VariableManager(parametersParser);
             WorldMap map = new WorldMap(manager);
             IEngine engine = new SimulationEngine(manager, map);
@@ -82,7 +88,7 @@ public class App extends Application {
         });
     }
 
-    private HBox createArgumentGetter(Slider[] sliders, ChoiceBox[] choiceBoxes, String[][] variantChoices, VBox vBoxCheckBoxes){
+    private HBox createArgumentGetter(String[][] variantChoices, VBox vBoxCheckBoxes){
         HBox hBox = new HBox();
         hBox.setSpacing(50);
         hBox.setAlignment(Pos.BASELINE_CENTER);
@@ -121,29 +127,29 @@ public class App extends Application {
         vBoxLeft.setAlignment(Pos.CENTER);
 
         for(int i = 0; i < numericParameters.length / 2; i++) {
-            this.addLabelAndSliderToSideVBox(sliders, i, vBoxLeft, numericParameters[i], stringParameters[i]);
+            this.addLabelAndSliderToSideVBox(i, vBoxLeft, numericParameters[i], stringParameters[i]);
         }
-
+        this.addMutationRangeSlider(vBoxLeft);
 
         VBox vBoxRight = new VBox();
         vBoxRight.setSpacing(3);
         vBoxRight.setAlignment(Pos.CENTER);
         for(int i = numericParameters.length / 2; i < numericParameters.length; i++) {
-            this.addLabelAndSliderToSideVBox(sliders, i, vBoxRight, numericParameters[i], stringParameters[i]);
+            this.addLabelAndSliderToSideVBox(i, vBoxRight, numericParameters[i], stringParameters[i]);
         }
 
         vBoxCheckBoxes.setSpacing(3);
         vBoxCheckBoxes.setAlignment(Pos.CENTER);
 
         for(int i = 0; i < variantChoices.length; i++){
-            this.addLabelAndCheckBox(choiceBoxes, i, vBoxCheckBoxes, variantChoices[i]);
+            this.addLabelAndCheckBox(i, vBoxCheckBoxes, variantChoices[i]);
         }
         hBox.getChildren().addAll(vBoxLeft, vBoxRight);
 
         return hBox;
     }
 
-    private void addLabelAndSliderToSideVBox(Slider[] sliders, int index, VBox vBox, int[] parameters, String title)
+    private void addLabelAndSliderToSideVBox(int index, VBox vBox, int[] parameters, String title)
     {
         Label label = new Label(title);
         int min = parameters[0];
@@ -174,7 +180,7 @@ public class App extends Application {
         vBox.getChildren().add(slider);
     }
 
-    private void addLabelAndCheckBox(ChoiceBox[] choiceBoxes, int index, VBox vBox, String[] variantChoices){
+    private void addLabelAndCheckBox(int index, VBox vBox, String[] variantChoices){
         Label label = new Label(variantChoices[2]);
         ChoiceBox<String> variant = new ChoiceBox<>();
         variant.setItems(FXCollections.observableArrayList(variantChoices[0], variantChoices[1]));
@@ -184,19 +190,21 @@ public class App extends Application {
         vBox.getChildren().add(variant);
     }
 
-    private void parseVariantChoices(ChoiceBox[] choicesBox, String[][] variantChoices){
-        this.parametersParser.setMapType(choicesBox[0].getValue() == variantChoices[0][0]);
-        this.parametersParser.setGardenType(choicesBox[1].getValue() == variantChoices[1][0]);
-        this.parametersParser.setBehaviorType(choicesBox[2].getValue() == variantChoices[2][0]);
-        this.parametersParser.setMutationType(choicesBox[3].getValue() == variantChoices[3][0]);
+    private void parseVariantChoices(String[][] variantChoices){
+        this.parametersParser.setMapTypeFlag(choiceBoxes[0].getValue() == variantChoices[0][0]);
+        this.parametersParser.setGardenTypeFlag(choiceBoxes[1].getValue() == variantChoices[1][0]);
+        this.parametersParser.setBehaviorTypeFlag(choiceBoxes[2].getValue() == variantChoices[2][0]);
+        this.parametersParser.setMutationTypeFlag(choiceBoxes[3].getValue() == variantChoices[3][0]);
     }
 
-    private void setParameters(Slider[] sliders, ChoiceBox[] choiceBoxes, String[][] variantChoices){
+    private void setParameters(String[][] variantChoices){
         this.parametersParser.setWidth((int) sliders[0].getValue());
         this.parametersParser.setHeight((int) sliders[1].getValue());
         this.parametersParser.setStartAnimalCount((int) sliders[2].getValue());
         this.parametersParser.setStartPlantsCount((int) sliders[3].getValue());
         this.parametersParser.setDailyEnergyLoss((int) sliders[4].getValue());
+        this.parametersParser.setMinMutationCount((int) mutationCountRange.getLowValue());
+        this.parametersParser.setMaxMutationCount((int) mutationCountRange.getHighValue());
         this.parametersParser.setEnergyRequiredToProcreate((int) sliders[5].getValue());
         this.parametersParser.setEnergyLossForChild((int) sliders[6].getValue());
         this.parametersParser.setStartEnergyForFactoryAnimals((int) sliders[7].getValue());
@@ -204,8 +212,26 @@ public class App extends Application {
         this.parametersParser.setPlantsEnergy((int) sliders[9].getValue());
         this.parametersParser.setPlantsEachDayCount((int) sliders[10].getValue());
 
-        this.parseVariantChoices(choiceBoxes, variantChoices);
+        this.parseVariantChoices(variantChoices);
 
+    }
+
+    private void addMutationRangeSlider(VBox vBox){
+        Label label = new Label("Min-Max Mutation Count");
+        VBox.setMargin(mutationCountRange, new Insets(0, 10, 0, 10));
+
+        mutationCountRange.setShowTickLabels(true);
+        mutationCountRange.setShowTickMarks(true);
+        mutationCountRange.setMajorTickUnit(2);
+        mutationCountRange.setMinorTickCount(1);
+        mutationCountRange.setAccessibleText("Min/Max Mutation Count");
+        mutationCountRange.setSnapToTicks(true);
+
+        mutationCountRange.setPrefWidth(300);
+        mutationCountRange.setPrefHeight(50);
+
+        vBox.getChildren().add(label);
+        vBox.getChildren().add(mutationCountRange);
     }
 
 }

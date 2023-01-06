@@ -6,16 +6,20 @@ import java.util.Random;
 public class SlightCorrection implements IMutationType{
 
     private final int dnaLength;
+    private final int minMutationCount;
+    private final int maxMutationCount;
     private static final Random random = new Random();
 
-    public SlightCorrection(int dnaLength){
+    public SlightCorrection(int dnaLength, int minMutationCount, int maxMutationCount){
         this.dnaLength = dnaLength;
+        this.minMutationCount = minMutationCount;
+        this.maxMutationCount = Math.min(maxMutationCount, dnaLength);
     }
 
     // mutation will change genes randomly one up or one down
     @Override
     public void mutation(GeneDirection[] dna) {
-        int mutationGeneCount = random.nextInt(this.dnaLength);
+        int mutationGeneCount = random.nextInt(minMutationCount, maxMutationCount + 1);
         Integer[] mutationGeneIndexes = new Integer[mutationGeneCount];
         for (int i = 0; i < mutationGeneCount; i++) {
             int index = random.nextInt(this.dnaLength);

@@ -13,11 +13,13 @@ public class ParametersParser {
     public int plantsEnergy;
     public int energyRequiredToProcreate; // energyRequiredToProcreate >= energyLossForChild
     public int dailyEnergyLoss;
+    public int minMutationCount;
+    public int maxMutationCount;
 
-    public boolean mapType; // True -> Globe
-    public boolean gardenType; // True -> Green Equator
-    public boolean mutationType; // True -> Total Randomness
-    public boolean behaviorType; // True -> Craziness
+    public boolean mapTypeFlag; // True -> Globe
+    public boolean gardenTypeFlag; // True -> Green Equator
+    public boolean mutationTypeFlag; // True -> Total Randomness
+    public boolean behaviorTypeFlag; // True -> Craziness
 
     public void setWidth(int width) {
         this.width = width;
@@ -63,19 +65,29 @@ public class ParametersParser {
         this.plantsEachDayCount = plantsEachDayCount;
     }
 
-    public void setMapType(boolean mapType) {
-        this.mapType = mapType;
+    public void setMinMutationCount(int minMutations){
+        this.minMutationCount = minMutations;
     }
 
-    public void setGardenType(boolean gardenType) {
-        this.gardenType = gardenType;
+    public void setMaxMutationCount(int maxMutations){
+        this.maxMutationCount = maxMutations;
     }
 
-    public void setMutationType(boolean mutationType) {
-        this.mutationType = mutationType;
+    public void setMapTypeFlag(boolean mapType) {
+        this.mapTypeFlag = mapType;
     }
 
-    public void setBehaviorType(boolean behaviorType) {
-        this.behaviorType = behaviorType;
+    public void setGardenTypeFlag(boolean gardenType) {
+        this.gardenTypeFlag = gardenType;
     }
+
+    public void setMutationTypeFlag(boolean mutationType) {
+        this.mutationTypeFlag = mutationType;
+    }
+
+    public void setBehaviorTypeFlag(boolean behaviorType) {
+        this.behaviorTypeFlag = behaviorType;
+    }
+
+
 }

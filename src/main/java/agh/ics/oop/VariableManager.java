@@ -10,6 +10,8 @@ public class VariableManager {
     public int plantsEachDayCount;
     public int startEnergyForFactoryAnimals;
     public int dnaLength;
+    private int minMutationCount;
+    private int maxMutationCount;
     public int energyLossForChild;
     public int plantsEnergy;
     public int energyRequiredToProcreate; // energyRequiredToProcreate >= energyLossForChild
@@ -55,9 +57,9 @@ public class VariableManager {
 
     private void setMutationType(boolean flag){
         if(flag){
-            this.mutationType = new TotalRandomness(dnaLength);
+            this.mutationType = new TotalRandomness(dnaLength, minMutationCount, maxMutationCount);
         }else {
-            this.mutationType = new SlightCorrection(dnaLength);
+            this.mutationType = new SlightCorrection(dnaLength, minMutationCount, maxMutationCount);
         }
     }
 
@@ -99,6 +101,8 @@ public class VariableManager {
         this.startAnimalCount = parametersParser.startAnimalCount;
         this.startPlantsCount = parametersParser.startPlantsCount;
         this.dailyEnergyLoss = parametersParser.dailyEnergyLoss;
+        this.minMutationCount = parametersParser.minMutationCount;
+        this.maxMutationCount = parametersParser.maxMutationCount;
         this.energyRequiredToProcreate = parametersParser.energyRequiredToProcreate;
         this.energyLossForChild = parametersParser.energyLossForChild;
         this.startEnergyForFactoryAnimals = parametersParser.startEnergyForFactoryAnimals;
@@ -106,9 +110,9 @@ public class VariableManager {
         this.plantsEnergy = parametersParser.plantsEnergy;
         this.plantsEachDayCount = parametersParser.plantsEachDayCount;
 
-        this.mapTypeFlag = parametersParser.mapType;
-        this.gardenTypeFlag = parametersParser.gardenType;
-        this.mutationTypeFlag = parametersParser.mutationType;
-        this.behaviorTypeFlag = parametersParser.behaviorType;
+        this.mapTypeFlag = parametersParser.mapTypeFlag;
+        this.gardenTypeFlag = parametersParser.gardenTypeFlag;
+        this.mutationTypeFlag = parametersParser.mutationTypeFlag;
+        this.behaviorTypeFlag = parametersParser.behaviorTypeFlag;
     }
 }

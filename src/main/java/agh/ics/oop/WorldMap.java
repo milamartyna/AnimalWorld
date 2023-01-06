@@ -47,21 +47,6 @@ public class WorldMap implements INextDayChange {
         this.animalsProcreate();
         manager.getGardenType().seedPlants(this, manager.plantsEachDayCount);
         this.updateStatistics();
-
-        // for testing
-//        System.out.println("Animals after the NEXT DAY");
-//        for (Animal animal : animals){
-//            System.out.println("Animal");
-//            System.out.println("Position " + animal.getPosition());
-//            System.out.println("Facing " + animal.getDirection());
-//            System.out.println("Energy " + animal.getEnergy());
-//            System.out.println("Age " + animal.getAge());
-//            System.out.println("Kids Count " + animal.getChildrenCount());
-//            System.out.println("Animals On Places Has Map " + animalsOnPositions.get(animal.getPosition()));
-//            System.out.println("___________");
-//        }
-//        System.out.println();
-//        System.out.println();
     }
 
     private void animalsMove(){
@@ -258,13 +243,8 @@ public class WorldMap implements INextDayChange {
     }
 
     private void setPlacesOfDeath() {
-        int height = this.manager.getHeight();
-        int width = this.manager.getWidth();
-        for(int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++) {
-                Vector2d position = new Vector2d(i, j);
-                placesOfDeath.put(position, 0);
-            }
+        for(Vector2d position : mapAsPositions){
+            placesOfDeath.put(position, 0);
         }
     }
 
