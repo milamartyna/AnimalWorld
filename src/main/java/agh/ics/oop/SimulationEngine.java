@@ -1,6 +1,5 @@
 package agh.ics.oop;
 
-import agh.ics.oop.gui.App;
 import agh.ics.oop.gui.GuiElementBox;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
@@ -8,6 +7,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,30 +21,32 @@ public class SimulationEngine implements IEngine{
     private final VariableManager manager;
     private final WorldMap map;
     private final IMapObserver mapObserver;
-    private final App app;
     private final GridPane worldGridPane;
     private final VBox statsVBox;
     private final VBox buttonStatsVBox;
     private final HBox mapWithStats;
     private final VBox mapVBox;
+    private boolean saveStats;
+    private File csvStatsFile;
     private boolean isPaused;
     private final List<VBox> animalButtonsList = new ArrayList<>();
     private final List<Animal> animalsAssignedToButtons = new ArrayList<>();
 
 
-    public SimulationEngine(VariableManager manager, WorldMap map, App app){
+    public SimulationEngine(VariableManager manager, WorldMap map){
         this.map = map;
         this.mapObserver = map.getMapObserver();
         this.manager = manager;
-        this.app = app;
         this.worldGridPane = new GridPane();
         this.statsVBox = new VBox();
+        this.saveStats = false;
         this.buttonStatsVBox = new VBox();
         this.mapWithStats = new HBox();
         this.mapVBox = new VBox(worldGridPane);
         this.isPaused = true;
     }
 
+    @Override
     public void run() {
         while (true) {
             try {
@@ -58,11 +61,22 @@ public class SimulationEngine implements IEngine{
         }
     }
 
+    @Override
     public boolean isPaused() {
         return isPaused;
     }
 
-    public HBox startSimulation(){
+    @Override
+    public void saveStats(int index) throws IOException {
+        this.saveStats = true;
+        this.csvStatsFile = new File("StatsSimulation" + index + ".csv");
+        FileWriter fileWriter = new FileWriter(csvStatsFile);
+        fileWriter.append("Day;Animals;Plants;FreeSpots;DNA;AvgEnergy;AvgLifespan;AvgKidsCount");
+        fileWriter.close();
+    }
+
+    @Override
+    public HBox startSimulation() throws IOException {
         this.drawScene();
         this.drawBeginScene();
         this.addAnimalInfoButton();
@@ -79,11 +93,15 @@ public class SimulationEngine implements IEngine{
             worldGridPane.getChildren().clear();
             worldGridPane.setGridLinesVisible(false);
             worldGridPane.setGridLinesVisible(true);
-            drawScene();
+            try {
+                drawScene();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
-    private void drawScene() {
+    private void drawScene() throws IOException {
         this.updateStats(statsVBox);
         this.clearAnimalButtons();
         int minX = map.startMap.x();
@@ -130,7 +148,7 @@ public class SimulationEngine implements IEngine{
         }
     }
 
-    private void drawBeginScene(){
+    private void drawBeginScene() throws IOException {
         worldGridPane.setGridLinesVisible(true);
         statsVBox.setAlignment(Pos.CENTER);
         statsVBox.setSpacing(5);
@@ -146,25 +164,43 @@ public class SimulationEngine implements IEngine{
                 startResumeButton.setText("RESUME");
             }
         });
-        this.updateStats(statsVBox);
+//        this.updateStats(statsVBox);
         buttonStatsVBox.getChildren().addAll(startResumeButton, statsVBox);
     }
 
-    private void updateStats(VBox statsVBox){
+    private void updateStats(VBox statsVBox) throws IOException {
         statsVBox.getChildren().clear();
         Label[] stats = new Label[8];
 
-        stats[0] = new Label("Day: " + this.mapObserver.getDay());
-        stats[1] = new Label("Animals On The Map: " + this.mapObserver.getAnimalCount());
-        stats[2] = new Label("Plants On The Map: " + this.mapObserver.getPlantsCount());
-        stats[3] = new Label("Free Spots On The Map: " + this.mapObserver.getFreeSpotsCount());
-        stats[4] = new Label("Most Popular DNA: " + Arrays.toString(this.mapObserver.getMostPopularDNA()));
-        stats[5] = new Label("Average Energy Level: " + String.format("%.2f", this.mapObserver.getAverageEnergyLevel()));
-        stats[6] = new Label("Average Lifespan: " + String.format("%.2f", this.mapObserver.getAverageLifespan()));
-        stats[7] = new Label("Average Children Per Animal: " + String.format("%.2f",this.mapObserver.getAverageChildrenCount()));
+        String day = String.valueOf(this.mapObserver.getDay());
+        String animals = String.valueOf(this.mapObserver.getAnimalCount());
+        String plants = String.valueOf(this.mapObserver.getPlantsCount());
+        String freeSpots = String.valueOf(this.mapObserver.getFreeSpotsCount());
+        String dna = Arrays.toString(this.mapObserver.getMostPopularDNA());
+        String energy = String.format("%.2f", this.mapObserver.getAverageEnergyLevel());
+        String lifespan = String.format("%.2f", this.mapObserver.getAverageLifespan());
+        String children = String.format("%.2f",this.mapObserver.getAverageChildrenCount());
+
+        stats[0] = new Label("Day: " + day);
+        stats[1] = new Label("Animals On The Map: " + animals);
+        stats[2] = new Label("Plants On The Map: " + plants);
+        stats[3] = new Label("Free Spots On The Map: " + freeSpots);
+        stats[4] = new Label("Most Popular DNA: " + dna);
+        stats[5] = new Label("Average Energy Level: " + energy);
+        stats[6] = new Label("Average Lifespan: " + lifespan);
+        stats[7] = new Label("Average Children Per Animal: " + children);
 
         for(int i = 0; i < 8; i++) {
             statsVBox.getChildren().add(stats[i]);
+        }
+
+        if(this.saveStats) {
+            String dailyStats = day + ';' + animals + ';' + plants + ';' + freeSpots + ';' + dna + ';' + energy
+                    + ';' + lifespan + ';' + children;
+            FileWriter fileWriter = new FileWriter(csvStatsFile, true);
+            fileWriter.append("\n");
+            fileWriter.append(dailyStats);
+            fileWriter.close();
         }
     }
 

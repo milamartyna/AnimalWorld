@@ -3,7 +3,6 @@ package agh.ics.oop.gui;
 import agh.ics.oop.Animal;
 import agh.ics.oop.IEngine;
 import agh.ics.oop.IMapElement;
-import agh.ics.oop.SimulationEngine;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;

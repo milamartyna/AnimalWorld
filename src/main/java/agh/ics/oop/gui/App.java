@@ -9,9 +9,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import java.io.IOException;
 
 public class App extends Application {
     private ParametersParser parametersParser;
+    private int simulationCount = 0;
 
     @Override
     public void start(Stage primaryStage) {
@@ -26,6 +28,7 @@ public class App extends Application {
         VBox vBoxCheckBoxes = new VBox();
         Slider[] sliders = new Slider[11];
         ChoiceBox[] choiceBoxes = new ChoiceBox[4];
+        CheckBox saveStatsCheckBox = new CheckBox("Save Daily Statistics");
         String[][] variantChoices = {
                 {"Globe", "Hell Gate", "Map Type"},
                 {"Green Equator", "Toxic Fields", "Garden Type"},
@@ -34,7 +37,7 @@ public class App extends Application {
         };
 
         HBox configPanel = this.createArgumentGetter(sliders, choiceBoxes, variantChoices, vBoxCheckBoxes);
-        vBoxCheckBoxes.getChildren().add(acceptButton);
+        vBoxCheckBoxes.getChildren().addAll(saveStatsCheckBox, acceptButton);
         configPanel.getChildren().add(vBoxCheckBoxes);
 
         Scene scene = new Scene(configPanel, 1000, 480);
@@ -48,10 +51,24 @@ public class App extends Application {
             setParameters(sliders, choiceBoxes, variantChoices);
             VariableManager manager = new VariableManager(parametersParser);
             WorldMap map = new WorldMap(manager);
-            IEngine engine = new SimulationEngine(manager, map, this);
+            IEngine engine = new SimulationEngine(manager, map);
+
+            if(saveStatsCheckBox.isSelected()){
+                simulationCount++;
+                try {
+                    engine.saveStats(simulationCount);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
 
             Stage worldSimulation = new Stage();
-            HBox mapWithStats = engine.startSimulation();
+            HBox mapWithStats;
+            try {
+                mapWithStats = engine.startSimulation();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
 
             Scene mapScene = new Scene(mapWithStats, 800, 600);
             worldSimulation.setScene(mapScene);
@@ -60,7 +77,7 @@ public class App extends Application {
             worldSimulation.show();
 
             Thread simulation = new Thread(engine);
-            simulation.setDaemon(true); // this will make the app close when we exit the window
+            simulation.setDaemon(true);
             simulation.start();
         });
     }

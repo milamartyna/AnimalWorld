@@ -1,12 +1,15 @@
 package agh.ics.oop;
 
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public interface IEngine extends Runnable{
 
     void run();
-    HBox startSimulation();
+    HBox startSimulation() throws IOException;
     boolean isPaused();
+    void saveStats(int index) throws IOException;
 
 }
