@@ -10,10 +10,14 @@ import javafx.scene.control.*;
 import org.controlsfx.control.RangeSlider;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Properties;
 
 public class App extends Application {
     private ParametersParser parametersParser;
+    private Properties prop;
     private int simulationCount = 0;
     private Slider[] sliders;
     private RangeSlider mutationCountRange;
@@ -23,10 +27,42 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.parametersParser = new ParametersParser();
-        getParametersFromUser(primaryStage);
+        this.prop = new Properties();
+        whichConfigOption(primaryStage);
     }
 
-    public void getParametersFromUser(Stage primaryStage)
+    private void whichConfigOption(Stage primaryStage){
+        String[] options = {"Config 1", "Config 2", "Personal Config"};
+        Label label = new Label("Configuration Options");
+        ChoiceBox configOptions = new ChoiceBox<>(FXCollections.observableArrayList(options));
+        Button confirmButton = new Button("Confirm");
+        VBox configOptionPanel = new VBox();
+
+        configOptionPanel.setSpacing(10);
+        configOptionPanel.setAlignment(Pos.CENTER);
+        configOptionPanel.getChildren().addAll(label, configOptions, confirmButton);
+
+        Scene scene = new Scene(configOptionPanel, 1000, 480);
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
+        primaryStage.setTitle("Animal World");
+        primaryStage.show();
+
+        confirmButton.setOnAction(e -> {
+            if(configOptions.getValue() == options[options.length - 1]){
+                startSimulationFromUser(primaryStage);
+            }else {
+                for(int i = 0; i < options.length - 1; i++){
+                    if(configOptions.getValue() == options[i]){
+                        this.startSimulationFromConfigFile(i + 1);
+                    }
+                }
+            }
+        });
+
+    }
+
+    private void startSimulationFromUser(Stage primaryStage)
     {
         Button acceptButton = new Button("Accept Button");
 
@@ -54,7 +90,7 @@ public class App extends Application {
 
         acceptButton.setOnAction(e -> {
 
-            setParameters(variantChoices);
+            setUserParameters(variantChoices);
             VariableManager manager = new VariableManager(parametersParser);
             WorldMap map = new WorldMap(manager);
             IEngine engine = new SimulationEngine(manager, map);
@@ -68,24 +104,55 @@ public class App extends Application {
                 }
             }
 
-            Stage worldSimulation = new Stage();
-            HBox mapWithStats;
+            this.startSimulation(engine);
+
+        });
+    }
+
+    private void startSimulationFromConfigFile(int i){
+        try {
+            prop.load(new FileInputStream("src/main/resources/config" + i + ".properties"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
+        boolean saveStatsFlag = this.setFileParameters();
+
+        VariableManager manager = new VariableManager(parametersParser);
+        WorldMap map = new WorldMap(manager);
+        IEngine engine = new SimulationEngine(manager, map);
+
+        if(saveStatsFlag){
+            simulationCount++;
             try {
-                mapWithStats = engine.startSimulation();
+                engine.saveStats(simulationCount);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
+        }
 
-            Scene mapScene = new Scene(mapWithStats, 800, 600);
-            worldSimulation.setScene(mapScene);
-            worldSimulation.setResizable(false);
-            worldSimulation.setTitle("Animal Map");
-            worldSimulation.show();
+        this.startSimulation(engine);
 
-            Thread simulation = new Thread(engine);
-            simulation.setDaemon(true);
-            simulation.start();
-        });
+    }
+
+    private void startSimulation(IEngine engine){
+        Stage worldSimulation = new Stage();
+        HBox mapWithStats;
+        try {
+            mapWithStats = engine.setUpSimulation();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        Scene mapScene = new Scene(mapWithStats, 800, 600);
+        worldSimulation.setScene(mapScene);
+        worldSimulation.setResizable(false);
+        worldSimulation.setTitle("Animal Map");
+        worldSimulation.show();
+
+        Thread simulation = new Thread(engine);
+        simulation.setDaemon(true);
+        simulation.start();
     }
 
     private HBox createArgumentGetter(String[][] variantChoices, VBox vBoxCheckBoxes){
@@ -190,14 +257,7 @@ public class App extends Application {
         vBox.getChildren().add(variant);
     }
 
-    private void parseVariantChoices(String[][] variantChoices){
-        this.parametersParser.setMapTypeFlag(choiceBoxes[0].getValue() == variantChoices[0][0]);
-        this.parametersParser.setGardenTypeFlag(choiceBoxes[1].getValue() == variantChoices[1][0]);
-        this.parametersParser.setBehaviorTypeFlag(choiceBoxes[2].getValue() == variantChoices[2][0]);
-        this.parametersParser.setMutationTypeFlag(choiceBoxes[3].getValue() == variantChoices[3][0]);
-    }
-
-    private void setParameters(String[][] variantChoices){
+    private void setUserParameters(String[][] variantChoices){
         this.parametersParser.setWidth((int) sliders[0].getValue());
         this.parametersParser.setHeight((int) sliders[1].getValue());
         this.parametersParser.setStartAnimalCount((int) sliders[2].getValue());
@@ -214,6 +274,38 @@ public class App extends Application {
 
         this.parseVariantChoices(variantChoices);
 
+    }
+
+    private void parseVariantChoices(String[][] variantChoices){
+        this.parametersParser.setMapTypeFlag(choiceBoxes[0].getValue() == variantChoices[0][0]);
+        this.parametersParser.setGardenTypeFlag(choiceBoxes[1].getValue() == variantChoices[1][0]);
+        this.parametersParser.setBehaviorTypeFlag(choiceBoxes[2].getValue() == variantChoices[2][0]);
+        this.parametersParser.setMutationTypeFlag(choiceBoxes[3].getValue() == variantChoices[3][0]);
+    }
+
+    private boolean setFileParameters(){
+        this.parametersParser.setWidth((Integer.parseInt(prop.getProperty("width"))));
+        System.out.println((Integer.parseInt(prop.getProperty("width"))));
+        this.parametersParser.setHeight((Integer.parseInt(prop.getProperty("height"))));
+        System.out.println((Integer.parseInt(prop.getProperty("height"))));
+        this.parametersParser.setStartAnimalCount((Integer.parseInt(prop.getProperty("startAnimalCount"))));
+        this.parametersParser.setStartPlantsCount((Integer.parseInt(prop.getProperty("startPlantsCount"))));
+        this.parametersParser.setDailyEnergyLoss((Integer.parseInt(prop.getProperty("dailyEnergyLoss"))));
+        this.parametersParser.setMinMutationCount((Integer.parseInt(prop.getProperty("minMutationCount"))));
+        this.parametersParser.setMaxMutationCount((Integer.parseInt(prop.getProperty("maxMutationCount"))));
+        this.parametersParser.setEnergyRequiredToProcreate((Integer.parseInt(prop.getProperty("energyRequiredToProcreate"))));
+        this.parametersParser.setEnergyLossForChild((Integer.parseInt(prop.getProperty("energyLossForChild"))));
+        this.parametersParser.setStartEnergyForFactoryAnimals((Integer.parseInt(prop.getProperty("startEnergyForFactoryAnimals"))));
+        this.parametersParser.setDnaLength((Integer.parseInt(prop.getProperty("dnaLength"))));
+        this.parametersParser.setPlantsEnergy((Integer.parseInt(prop.getProperty("plantsEnergy"))));
+        this.parametersParser.setPlantsEachDayCount((Integer.parseInt(prop.getProperty("plantsEachDayCount"))));
+
+        this.parametersParser.setMapTypeFlag((Boolean.parseBoolean(prop.getProperty("mapTypeFlag"))));
+        this.parametersParser.setGardenTypeFlag((Boolean.parseBoolean(prop.getProperty("gardenTypeFlag"))));
+        this.parametersParser.setMutationTypeFlag((Boolean.parseBoolean(prop.getProperty("mutationTypeFlag"))));
+        this.parametersParser.setBehaviorTypeFlag((Boolean.parseBoolean(prop.getProperty("behaviourTypeFlag"))));
+
+        return Boolean.parseBoolean(prop.getProperty("saveStats"));
     }
 
     private void addMutationRangeSlider(VBox vBox){

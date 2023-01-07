@@ -115,8 +115,7 @@ public class StatisticsManager implements IMapObserver {
     public GeneDirection[] getMostPopularDNA() {
         int max_count = 0;
 
-        for(Map.Entry<GeneDirection[], Integer> val : animalsDNA.entrySet())
-        {
+        for(Map.Entry<GeneDirection[], Integer> val : animalsDNA.entrySet()) {
             if (max_count < val.getValue()) {
                 mostPopularDNA = val.getKey();
                 max_count = val.getValue();

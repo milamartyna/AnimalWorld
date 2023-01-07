@@ -76,7 +76,7 @@ public class SimulationEngine implements IEngine{
     }
 
     @Override
-    public HBox startSimulation() throws IOException {
+    public HBox setUpSimulation() throws IOException {
         this.drawScene();
         this.drawBeginScene();
         this.addAnimalInfoButton();
