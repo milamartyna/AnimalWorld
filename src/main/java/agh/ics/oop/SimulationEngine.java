@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Math.min;
+import static java.lang.Math.pow;
 
 public class SimulationEngine implements IEngine{
     private static final double GRID_SIZE = 400.0;
@@ -156,8 +157,12 @@ public class SimulationEngine implements IEngine{
     private void drawBeginScene() throws IOException {
         worldGridPane.setGridLinesVisible(true);
         statsVBox.setAlignment(Pos.CENTER);
+        infoVBox.setAlignment(Pos.CENTER);
         statsVBox.setSpacing(5);
+        infoVBox.setSpacing(5);
         statsVBox.setAlignment(Pos.CENTER);
+        infoVBox.setAlignment(Pos.CENTER);
+        infoVBox.setStyle("-fx-border-color: #109123");
         Button startResumeButton = new Button("START");
 
         startResumeButton.setOnAction(event -> {
@@ -264,7 +269,7 @@ public class SimulationEngine implements IEngine{
 
     public void trackingInfo(VBox infoVBox) {
         infoVBox.getChildren().clear();
-        infoVBox.getChildren().add(new Label("Tracked Animal informations:"));
+        infoVBox.getChildren().add(new Label("TRACKED ANIMAL"));
         Animal animal = getTrackedAnimal();
         Label[] information = new Label[7];
         information[0] = new Label("DNA: " + Arrays.toString(animal.getDna()));
