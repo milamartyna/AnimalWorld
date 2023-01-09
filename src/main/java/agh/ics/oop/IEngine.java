@@ -9,5 +9,6 @@ public interface IEngine extends Runnable{
     HBox setUpSimulation() throws IOException;
     boolean isPaused();
     void saveStats(int index) throws IOException;
+    void startTracking(Animal animal);
 
 }

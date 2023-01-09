@@ -54,18 +54,21 @@ public class GuiElementBox {
         return this.box;
     }
 
-    private static void setButtonOnAction(Button button, Animal animal, IEngine engine) {
+    private void setButtonOnAction(Button button, Animal animal, IEngine engine) {
 
         button.setOnAction(event -> {
             if (engine.isPaused()) {
-                Button genotypeButton = new Button("Show information");
-                HBox.setMargin(genotypeButton, new Insets(20));
-                HBox hBox = new HBox(genotypeButton);
-                Scene scene = new Scene(hBox, 230, 100);
+                Button infoButton = new Button("Show information");
+                Button trackButton = new Button("Track Animal");
+                VBox.setMargin(infoButton, new Insets(5));
+                VBox.setMargin(trackButton, new Insets(5));
+                VBox vBox = new VBox(infoButton, trackButton);
+                Scene scene = new Scene(vBox, 230, 100);
                 Stage stage = new Stage();
                 stage.setScene(scene);
                 stage.show();
-                genotypeButton.setOnAction(e -> {
+
+                infoButton.setOnAction(e -> {
                     stage.hide();
                     Stage genotypeStage = new Stage();
                     VBox infoVBox = new VBox();
@@ -81,6 +84,11 @@ public class GuiElementBox {
                     }
                     genotypeStage.setScene(new Scene(infoVBox, 400, 150));
                     genotypeStage.show();
+                    });
+
+                trackButton.setOnAction(e -> {
+                    engine.startTracking(animal);
+                    stage.hide();
                 });
             }
         });

@@ -18,12 +18,15 @@ import static java.lang.Math.min;
 public class SimulationEngine implements IEngine{
     private static final double GRID_SIZE = 400.0;
     private static final int MOVE_DELAY = 300;
+    private boolean isTracked = false;
+    private boolean isDead = false;
     private final VariableManager manager;
     private final WorldMap map;
     private final IMapObserver mapObserver;
     private final GridPane worldGridPane;
     private final VBox statsVBox;
     private final VBox buttonStatsVBox;
+    private final VBox infoVBox;
     private final HBox mapWithStats;
     private final VBox mapVBox;
     private boolean saveStats;
@@ -31,7 +34,7 @@ public class SimulationEngine implements IEngine{
     private boolean isPaused;
     private final List<VBox> animalButtonsList = new ArrayList<>();
     private final List<Animal> animalsAssignedToButtons = new ArrayList<>();
-
+    private Animal trackedAnimal;
 
     public SimulationEngine(VariableManager manager, WorldMap map){
         this.map = map;
@@ -44,6 +47,8 @@ public class SimulationEngine implements IEngine{
         this.mapWithStats = new HBox();
         this.mapVBox = new VBox(worldGridPane);
         this.isPaused = true;
+        this.infoVBox = new VBox();
+        this.trackedAnimal = null;
     }
 
     @Override
@@ -85,7 +90,6 @@ public class SimulationEngine implements IEngine{
         mapWithStats.setSpacing(20);
         return mapWithStats;
     }
-
     private void setScene(){
         Platform.runLater(() -> {
             worldGridPane.getColumnConstraints().clear();
@@ -103,6 +107,7 @@ public class SimulationEngine implements IEngine{
 
     private void drawScene() throws IOException {
         this.updateStats(statsVBox);
+        if(isTracked && trackedAnimal != null && !isDead){this.trackingInfo(infoVBox); }
         this.clearAnimalButtons();
         int minX = map.startMap.x();
         int minY = map.startMap.y();
@@ -165,7 +170,7 @@ public class SimulationEngine implements IEngine{
             }
         });
 //        this.updateStats(statsVBox);
-        buttonStatsVBox.getChildren().addAll(startResumeButton, statsVBox);
+        buttonStatsVBox.getChildren().addAll(startResumeButton, statsVBox, infoVBox);
     }
 
     private void updateStats(VBox statsVBox) throws IOException {
@@ -231,12 +236,52 @@ public class SimulationEngine implements IEngine{
                 animalButtonsList.get(i).setStyle("-fx-border-color: #ff0000");
     }
 
-    private void pauseEngine(){
+    private void pauseEngine() {
         this.isPaused = true;
+        this.isTracked = false;
+        this.trackedAnimal = null;
     }
 
     public void resumeEngine(){
         this.isPaused = false;
+        this.isTracked = true;
+        infoVBox.getChildren().clear();
+    }
+
+    public void setTrackedAnimal(Animal animal) {
+        this.trackedAnimal = animal;
+    }
+
+    public Animal getTrackedAnimal() {
+        return trackedAnimal;
+    }
+
+    public void startTracking(Animal animal){
+        setTrackedAnimal(animal);
+        isTracked = true;
+        isDead = false;
+    }
+
+    public void trackingInfo(VBox infoVBox) {
+        infoVBox.getChildren().clear();
+        infoVBox.getChildren().add(new Label("Tracked Animal informations:"));
+        Animal animal = getTrackedAnimal();
+        Label[] information = new Label[7];
+        information[0] = new Label("DNA: " + Arrays.toString(animal.getDna()));
+        information[1] = new Label("Active Gene: " + animal.getActiveGene());
+        information[2] = new Label("Energy: " + animal.getEnergy());
+        information[3] = new Label("Number of eaten Plants: " + animal.getEatenPlants());
+        information[4] = new Label("Number of Children: " + animal.getChildrenCount());
+        information[5] = new Label("Age: " + animal.getAge());
+        if(animal.isDead()){
+            information[6] = new Label("Death day: " + this.mapObserver.getDay());
+            isDead = true;
+        }else{
+            information[6] = new Label("Death day: Still alive");
+        }
+        for (int i = 0; i < 7; i++) {
+            infoVBox.getChildren().add(information[i]);
+        }
     }
 
 }

@@ -270,10 +270,10 @@ public class WorldMap implements INextDayChange {
         this.observer.energyLevelsUpdate(sum);
     }
 
-    private void freeSpotsUpdate(){
+    private void freeSpotsUpdate() {
         int freeSpots = 0;
-        for (Vector2d mapPosition : this.mapAsPositions){
-            if(!this.isOccupied(mapPosition)) freeSpots += 1;
+        for (Vector2d mapPosition : this.mapAsPositions) {
+            if (!this.isOccupied(mapPosition)) freeSpots += 1;
         }
         this.getMapObserver().freeSpotsUpdate(freeSpots);
 
