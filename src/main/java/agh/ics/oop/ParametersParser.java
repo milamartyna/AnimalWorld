@@ -11,7 +11,7 @@ public class ParametersParser {
     public int dnaLength;
     public int energyLossForChild;
     public int plantsEnergy;
-    public int energyRequiredToProcreate; // energyRequiredToProcreate >= energyLossForChild
+    public int energyRequiredToProcreate;
     public int dailyEnergyLoss;
     public int minMutationCount;
     public int maxMutationCount;

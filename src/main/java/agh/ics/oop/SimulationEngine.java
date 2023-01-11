@@ -9,12 +9,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.Math.min;
-import static java.lang.Math.pow;
 
 public class SimulationEngine implements IEngine{
     private static final double GRID_SIZE = 400.0;
@@ -91,6 +88,7 @@ public class SimulationEngine implements IEngine{
         mapWithStats.setSpacing(20);
         return mapWithStats;
     }
+
     private void setScene(){
         Platform.runLater(() -> {
             worldGridPane.getColumnConstraints().clear();
@@ -108,7 +106,7 @@ public class SimulationEngine implements IEngine{
 
     private void drawScene() throws IOException {
         this.updateStats(statsVBox);
-        if(isTracked && trackedAnimal != null && !isDead){this.trackingInfo(infoVBox); }
+        if(isTracked && trackedAnimal != null && !isDead) this.trackingInfo(infoVBox);
         this.clearAnimalButtons();
         int minX = map.startMap.x();
         int minY = map.startMap.y();
@@ -154,7 +152,7 @@ public class SimulationEngine implements IEngine{
         }
     }
 
-    private void drawBeginScene() throws IOException {
+    private void drawBeginScene(){
         worldGridPane.setGridLinesVisible(true);
         statsVBox.setAlignment(Pos.CENTER);
         infoVBox.setAlignment(Pos.CENTER);
@@ -174,7 +172,6 @@ public class SimulationEngine implements IEngine{
                 startResumeButton.setText("RESUME");
             }
         });
-//        this.updateStats(statsVBox);
         buttonStatsVBox.getChildren().addAll(startResumeButton, statsVBox, infoVBox);
     }
 
@@ -247,27 +244,28 @@ public class SimulationEngine implements IEngine{
         this.trackedAnimal = null;
     }
 
-    public void resumeEngine(){
+    private void resumeEngine(){
         this.isPaused = false;
         this.isTracked = true;
         infoVBox.getChildren().clear();
     }
 
-    public void setTrackedAnimal(Animal animal) {
+    private void setTrackedAnimal(Animal animal) {
         this.trackedAnimal = animal;
     }
 
-    public Animal getTrackedAnimal() {
+    private Animal getTrackedAnimal() {
         return trackedAnimal;
     }
 
+    @Override
     public void startTracking(Animal animal){
         setTrackedAnimal(animal);
         isTracked = true;
         isDead = false;
     }
 
-    public void trackingInfo(VBox infoVBox) {
+    private void trackingInfo(VBox infoVBox) {
         infoVBox.getChildren().clear();
         infoVBox.getChildren().add(new Label("TRACKED ANIMAL"));
         Animal animal = getTrackedAnimal();

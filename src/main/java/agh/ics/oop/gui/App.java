@@ -59,11 +59,9 @@ public class App extends Application {
                 }
             }
         });
-
     }
 
-    private void startSimulationFromUser(Stage primaryStage)
-    {
+    private void startSimulationFromUser(Stage primaryStage) {
         Button acceptButton = new Button("Accept Button");
 
         VBox vBoxCheckBoxes = new VBox();
@@ -285,9 +283,7 @@ public class App extends Application {
 
     private boolean setFileParameters(){
         this.parametersParser.setWidth((Integer.parseInt(prop.getProperty("width"))));
-        System.out.println((Integer.parseInt(prop.getProperty("width"))));
         this.parametersParser.setHeight((Integer.parseInt(prop.getProperty("height"))));
-        System.out.println((Integer.parseInt(prop.getProperty("height"))));
         this.parametersParser.setStartAnimalCount((Integer.parseInt(prop.getProperty("startAnimalCount"))));
         this.parametersParser.setStartPlantsCount((Integer.parseInt(prop.getProperty("startPlantsCount"))));
         this.parametersParser.setDailyEnergyLoss((Integer.parseInt(prop.getProperty("dailyEnergyLoss"))));

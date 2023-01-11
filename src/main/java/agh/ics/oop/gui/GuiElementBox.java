@@ -11,7 +11,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -21,31 +20,26 @@ import static java.lang.Math.min;
 
 public class GuiElementBox {
 
-    private Image image;
-    private ImageView imageView;
-    private Button button;
-    private VBox box;
-    private ProgressBar progressBar;
-    private double energyProgress;
+    private final VBox box;
 
     public GuiElementBox(IMapElement element, double size, int totalEnergy, Object animal, IEngine engine){
 
-        image = element.getImage();
-        this.imageView = new ImageView(image);
-        this.imageView.setFitWidth(size*0.6);
-        this.imageView.setFitHeight(size*0.6);
+        Image image = element.getImage();
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(size*0.6);
+        imageView.setFitHeight(size*0.6);
 
         this.box = new VBox();
         this.box.setAlignment(Pos.CENTER);
         if(element.getClass().equals(Animal.class)){
             int minEnergy = min(totalEnergy, element.getEnergy());
-            this.button = new Button();
-            this.button.setGraphic(imageView);
-            this.energyProgress = (double) minEnergy / totalEnergy;
-            this.progressBar = new ProgressBar();
-            this.progressBar.setProgress(energyProgress);
+            Button button = new Button();
+            button.setGraphic(imageView);
+            double energyProgress = (double) minEnergy / totalEnergy;
+            ProgressBar progressBar = new ProgressBar();
+            progressBar.setProgress(energyProgress);
             this.box.getChildren().addAll(button, progressBar);
-            setButtonOnAction(this.button, (Animal) animal, engine);
+            setButtonOnAction(button, (Animal) animal, engine);
         }
         else{this.box.getChildren().addAll(imageView);}
     }

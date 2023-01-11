@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 
 public class Plant implements IMapElement{
 
+    private final Vector2d position;
     private static final Image image;
 
     static {
@@ -17,12 +18,11 @@ public class Plant implements IMapElement{
         }
     }
 
-    private final Vector2d position;
-
     public Plant(Vector2d position){
         this.position = position;
     }
 
+    @Override
     public Vector2d getPosition(){
         return position;
         }
@@ -41,4 +41,5 @@ public class Plant implements IMapElement{
     public int getEnergy() {
         return -1;
     }
+
 }
